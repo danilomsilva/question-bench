@@ -64,7 +64,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 
 ## Step 5 — MongoDB integration
 - [x] 5a **(decision)** Driver — **motor** (async). Note: motor was deprecated May 2025 in favour of PyMongo's native `AsyncMongoClient`; chosen anyway. Store + routes go async as a result.
-- [ ] 5b Connection lifecycle — `lifespan` startup/shutdown
+- [x] 5b Connection lifecycle — `db.lifespan` builds/closes the motor client (lazy connect); `ItemStore` Protocol + `InMemoryItemStore` + all routes are now `async`; `get_store` returns Mongo when `app.state.mongo_db` is set, else in-memory
 - [ ] 5c Mongo-backed implementation of the store interface
 - [ ] 5d Document (de)serialisation — Pydantic ↔ BSON, `_id` handling
 - [ ] 5e Indexes — `skill_tag`, `prompt_version`, `type`, `created_at`

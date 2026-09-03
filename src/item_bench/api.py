@@ -10,9 +10,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Annotated, Any, Literal
 
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field, ValidationError
 
+from item_bench.db import lifespan
 from item_bench.eval import EvaluationReport, evaluate
 from item_bench.llm import GenerationError, ItemGenerator, StubItemGenerator
 from item_bench.models import Item, ItemAdapter
@@ -30,15 +31,24 @@ class GenerateRequest(BaseModel):
     count: int = Field(default=1, ge=1, le=10)
 
 
-# --- dependency wiring ----------------------------------------------------------
-# Module-level singletons; tests override these via app.dependency_overrides.
+# --- dependency wiring --------------------------------------------------------
 
-_store = InMemoryItemStore()
+_memory_store = InMemoryItemStore()
 _generator = StubItemGenerator()
 
 
-def get_store() -> ItemStore:
-    return _store
+def get_store(request: Request) -> ItemStore:
+    """Mongo-backed when the lifespan connected a client, else in-memory.
+
+    Unit tests either skip the lifespan (so they get the in-memory store)
+    or override this dependency entirely.
+    """
+    mongo_db = getattr(request.app.state, "mongo_db", None)
+    if mongo_db is not None:
+        from item_bench.mongo_store import MongoItemStore
+
+        return MongoItemStore(mongo_db)
+    return _memory_store
 
 
 def get_generator() -> ItemGenerator:
@@ -49,7 +59,7 @@ StoreDep = Annotated[ItemStore, Depends(get_store)]
 GeneratorDep = Annotated[ItemGenerator, Depends(get_generator)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 
-app = FastAPI(title="item-bench")
+app = FastAPI(title="item-bench", lifespan=lifespan)
 
 
 @app.get("/health")
@@ -58,7 +68,7 @@ def health() -> dict[str, str]:
 
 
 @app.post("/generate", response_model=list[Item], status_code=status.HTTP_201_CREATED)
-def generate(
+async def generate(
     request: GenerateRequest,
     store: StoreDep,
     generator: GeneratorDep,
@@ -76,25 +86,25 @@ def generate(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"item generation failed: {exc}",
         ) from exc
-    return [store.add(item) for item in items]
+    return [await store.add(item) for item in items]
 
 
 @app.get("/items", response_model=list[Item])
-def list_items(
+async def list_items(
     store: StoreDep,
     item_type: str | None = None,
     skill_tag: str | None = None,
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> list[Item]:
-    return store.list_items(
+    return await store.list_items(
         item_type=item_type, skill_tag=skill_tag, limit=limit, offset=offset
     )
 
 
 @app.get("/items/{item_id}", response_model=Item)
-def get_item(item_id: str, store: StoreDep) -> Item:
-    item = store.get(item_id)
+async def get_item(item_id: str, store: StoreDep) -> Item:
+    item = await store.get(item_id)
     if item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
@@ -103,8 +113,8 @@ def get_item(item_id: str, store: StoreDep) -> Item:
 
 
 @app.patch("/items/{item_id}", response_model=Item)
-def patch_item(item_id: str, body: dict[str, Any], store: StoreDep) -> Item:
-    item = store.get(item_id)
+async def patch_item(item_id: str, body: dict[str, Any], store: StoreDep) -> Item:
+    item = await store.get(item_id)
     if item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
@@ -124,14 +134,14 @@ def patch_item(item_id: str, body: dict[str, Any], store: StoreDep) -> Item:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=exc.errors()
         ) from exc
-    return store.replace(updated)
+    return await store.replace(updated)
 
 
 @app.post("/items/{item_id}/evaluate", response_model=EvaluationReport)
-def evaluate_item(item_id: str, store: StoreDep) -> EvaluationReport:
-    item = store.get(item_id)
+async def evaluate_item(item_id: str, store: StoreDep) -> EvaluationReport:
+    item = await store.get(item_id)
     if item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
         )
-    return store.add_report(evaluate(item))
+    return await store.add_report(evaluate(item))

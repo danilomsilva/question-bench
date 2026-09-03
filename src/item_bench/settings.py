@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # the prompt that produced them.
     prompt_version: str = "stub-v1"
 
+    # When the app boots with a reachable Mongo it uses MongoItemStore;
+    # otherwise (and in unit tests) it falls back to the in-memory store.
+    mongo_url: str = "mongodb://localhost:27017"
+    mongo_db: str = "item_bench"
+
 
 @lru_cache
 def get_settings() -> Settings:
