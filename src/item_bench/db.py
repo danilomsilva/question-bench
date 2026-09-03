@@ -13,9 +13,22 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from item_bench.settings import get_settings
+
+# Fields the app filters, groups or sorts on. `prompt_version` matters
+# most: pass-rate-by-prompt is the whole point of the eval scores.
+_ITEM_INDEXES = ("type", "skill_tag", "prompt_version", "created_at")
+_EVALUATION_INDEXES = ("item_id", "prompt_version", "evaluated_at")
+
+
+async def ensure_indexes(db: AsyncIOMotorDatabase) -> None:
+    """Idempotent; safe to call on every startup."""
+    for field in _ITEM_INDEXES:
+        await db["items"].create_index(field)
+    for field in _EVALUATION_INDEXES:
+        await db["evaluations"].create_index(field)
 
 
 @asynccontextmanager
@@ -24,8 +37,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # tz_aware so BSON datetimes come back as timezone-aware UTC, matching
     # how the models store them.
     client: AsyncIOMotorClient = AsyncIOMotorClient(settings.mongo_url, tz_aware=True)
+    db = client[settings.mongo_db]
     app.state.mongo_client = client
-    app.state.mongo_db = client[settings.mongo_db]
+    app.state.mongo_db = db
+    await ensure_indexes(db)
     try:
         yield
     finally:

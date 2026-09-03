@@ -67,7 +67,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 5b Connection lifecycle — `db.lifespan` builds/closes the motor client (lazy connect); `ItemStore` Protocol + `InMemoryItemStore` + all routes are now `async`; `get_store` returns Mongo when `app.state.mongo_db` is set, else in-memory
 - [x] 5c Mongo-backed store — `MongoItemStore` (collections `items`, `evaluations`), all `ItemStore` methods; list sorted by `created_at` for parity with the in-memory store
 - [x] 5d (De)serialisation — `model_dump(mode="python")` keeps `datetime` for BSON; item uuid is the `_id` (no second id); reads re-parse through `ItemAdapter`; client is `tz_aware`; round-trip tests allow sub-ms drift (BSON is ms precision). *Landed with 5c — the store can't exist without its serialisation.*
-- [ ] 5e Indexes — `skill_tag`, `prompt_version`, `type`, `created_at`
+- [x] 5e Indexes — `db.ensure_indexes()` (idempotent, run from `lifespan`): `items` on `type`/`skill_tag`/`prompt_version`/`created_at`, `evaluations` on `item_id`/`prompt_version`/`evaluated_at`
 - [ ] 5f **(decision)** Test strategy — `mongomock` vs testcontainers vs ephemeral service
 - [ ] 5g Verify: store tests pass against real Mongo, endpoint tests still green
 

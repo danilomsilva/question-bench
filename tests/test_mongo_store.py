@@ -13,8 +13,9 @@ from collections.abc import AsyncIterator
 import pymongo
 import pytest
 import pytest_asyncio
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
+from item_bench.db import ensure_indexes
 from item_bench.eval import evaluate
 from item_bench.models import MultipleChoiceItem, ShortAnswerItem
 from item_bench.mongo_store import MongoItemStore
@@ -40,14 +41,19 @@ pytestmark = [
 
 
 @pytest_asyncio.fixture
-async def store() -> AsyncIterator[MongoItemStore]:
+async def mongo_db() -> AsyncIterator[AsyncIOMotorDatabase]:
     client = AsyncIOMotorClient(MONGO_URL, tz_aware=True)
     db = client["item_bench_test"]
     for name in ("items", "evaluations"):
         await db[name].delete_many({})
-    yield MongoItemStore(db)
+    yield db
     await client.drop_database("item_bench_test")
     client.close()
+
+
+@pytest.fixture
+def store(mongo_db: AsyncIOMotorDatabase) -> MongoItemStore:
+    return MongoItemStore(mongo_db)
 
 
 async def test_add_then_get(
@@ -130,3 +136,12 @@ async def test_reports_add_and_list(
     assert len(reports) == 1
     assert reports[0].item_id == valid_mc.id
     assert reports[0].score == 1.0
+
+
+async def test_ensure_indexes_is_idempotent(mongo_db: AsyncIOMotorDatabase) -> None:
+    await ensure_indexes(mongo_db)
+    await ensure_indexes(mongo_db)  # second call must not raise
+
+    item_indexes = await mongo_db["items"].index_information()
+    indexed_fields = {spec["key"][0][0] for spec in item_indexes.values()}
+    assert {"type", "skill_tag", "prompt_version", "created_at"} <= indexed_fields
