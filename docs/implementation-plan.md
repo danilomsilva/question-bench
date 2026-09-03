@@ -39,14 +39,14 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 2h Verify: 17 tests green (shape validation + adapter routing + serialise/parse round-trip), ruff clean
 
 ## Step 3 — Eval rules (tests first)
-- [ ] 3a Test fixtures — a valid item plus one deliberately-broken item per rule
+- [x] 3a Test-data convention — keep only `valid_mc`/`valid_sa`; each rule test builds its broken item inline via `.model_copy(update=...)`. Rule tests in `tests/test_eval_rules.py`, harness code in `src/item_bench/eval.py`
+- [x] 3g Result value object — `RuleResult(rule, passed, detail)`, frozen dataclass (pulled ahead of the rules so each rule has a consistent return type)
 - [ ] 3b Rule: exactly one correct answer — test, then implement
 - [ ] 3c Rule: no duplicate options — test, then implement
 - [ ] 3d Rule: distractors within ±30% length of correct answer — test, then implement
 - [ ] 3e Rule: stem does not contain the answer verbatim — test, then implement
 - [ ] 3f Rule: `skill_tag` present and in allowed list — test, then implement
-- [ ] 3g Result model — per-rule pass/fail + detail, overall score
-- [ ] 3h Aggregator — run all rules over an item, return the result model — test, then implement
+- [ ] 3h Aggregator — run the rules applicable to an item's type, return per-rule results + overall score — test, then implement
 - [ ] 3i **(decision)** Score persistence shape — how a score is stored against `prompt_version`
 - [ ] 3j Verify: full suite green, predict-then-run confirmed
 
