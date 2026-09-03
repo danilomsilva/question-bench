@@ -147,5 +147,9 @@ Write it, one line on what it does, move on.
   only purpose is checking boxes in the plan. The tick goes in the SAME
   commit as the work it describes — stage the plan file alongside the
   code, always. No follow-up "tick the plan" commit, ever.
+- NEVER run `git commit` or `git push` without asking me first — every
+  time, no exceptions. Make the edits, run the checks, stage the files,
+  then wait for my explicit go-ahead for the commit, and again for the
+  push.
 - If we learn something that changes the plan, update the file — add,
   split, or reorder items — and say so.
