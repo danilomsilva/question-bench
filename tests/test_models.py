@@ -108,3 +108,17 @@ def test_adapter_rejects_unknown_type() -> None:
 def test_adapter_rejects_missing_type() -> None:
     with pytest.raises(ValidationError):
         ItemAdapter.validate_python({**_valid_kwargs(), "answer": "4"})
+
+
+def test_round_trip_multiple_choice(valid_mc: MultipleChoiceItem) -> None:
+    dumped = ItemAdapter.dump_python(valid_mc)
+    reparsed = ItemAdapter.validate_python(dumped)
+
+    assert reparsed == valid_mc
+
+
+def test_round_trip_short_answer(valid_sa: ShortAnswerItem) -> None:
+    dumped = ItemAdapter.dump_python(valid_sa)
+    reparsed = ItemAdapter.validate_python(dumped)
+
+    assert reparsed == valid_sa

@@ -34,9 +34,9 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 2c `multiple_choice` model — `MultipleChoiceItem`: `options: list[str]` (2+) + `correct_answer` (flat, not option objects); shape-only validation
 - [x] 2d `short_answer` model — `ShortAnswerItem`: single `answer: str` (grading tolerance is out of scope)
 - [x] 2e Discriminated union + parsing — `Item = Annotated[MC | SA, Field(discriminator="type")]`, `ItemAdapter = TypeAdapter(Item)`
-- [ ] 2f Allowed `skill_tag` list — where the constant lives
-- [ ] 2g Example instances / fixtures for tests
-- [ ] 2h Verify: models validate good input, reject bad input
+- [x] 2f Allowed `skill_tag` list — `ALLOWED_SKILL_TAGS` frozenset in `src/item_bench/skill_tags.py` (plain constant, model does NOT enforce membership — that's eval rule 3f)
+- [x] 2g Example instances / fixtures for tests — `valid_mc` / `valid_sa` pytest fixtures in `tests/conftest.py`
+- [x] 2h Verify: 17 tests green (shape validation + adapter routing + serialise/parse round-trip), ruff clean
 
 ## Step 3 — Eval rules (tests first)
 - [ ] 3a Test fixtures — a valid item plus one deliberately-broken item per rule
