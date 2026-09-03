@@ -82,7 +82,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 7a Vite 6 + React 19 + TS + Tailwind 4 scaffold; dev proxy to `:8000`; `frontend` CI job (`npm ci` + `npm run build`, which also typechecks)
 - [x] 7b `src/api.ts` — hand-written types mirroring the Pydantic models + typed `fetch` wrappers for all five endpoints; `QueryClientProvider` wired in `main.tsx`
 - [x] 7c `GenerateView` — form (type / skill_tag / count), `useMutation` on POST /generate, invalidates the items query on success
-- [ ] 7d Items list screen
+- [x] 7d `ItemsView` — `useQuery` on `GET /items` keyed by filters, `item_type`/`skill_tag` filter controls, table with row-click to select
 - [ ] 7e Item detail + edit screen
 - [ ] 7f Evaluate action + results display
 - [ ] 7g `prompt_version` pass-rate view

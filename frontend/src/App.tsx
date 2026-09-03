@@ -1,5 +1,6 @@
 import { useState } from "react";
 import GenerateView from "./views/GenerateView";
+import ItemsView from "./views/ItemsView";
 
 type Tab = "generate" | "items" | "passrate";
 
@@ -12,6 +13,12 @@ const LABELS: Record<Tab, string> = {
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("generate");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  function switchTab(next: Tab) {
+    setTab(next);
+    setSelectedId(null);
+  }
 
   return (
     <div className="mx-auto max-w-4xl p-6">
@@ -21,7 +28,7 @@ export default function App() {
           {TABS.map((t) => (
             <button
               key={t}
-              onClick={() => setTab(t)}
+              onClick={() => switchTab(t)}
               className={`rounded px-3 py-1 text-sm ${
                 tab === t ? "bg-black text-white" : "bg-gray-100"
               }`}
@@ -33,7 +40,23 @@ export default function App() {
       </header>
 
       {tab === "generate" && <GenerateView />}
-      {tab !== "generate" && (
+
+      {tab === "items" && selectedId === null && (
+        <ItemsView onSelect={setSelectedId} />
+      )}
+      {tab === "items" && selectedId !== null && (
+        <div>
+          <button
+            onClick={() => setSelectedId(null)}
+            className="mb-3 text-sm text-blue-600"
+          >
+            ← back to items
+          </button>
+          <p className="text-sm text-gray-500">Detail view lands in 7e.</p>
+        </div>
+      )}
+
+      {tab === "passrate" && (
         <p className="text-sm text-gray-500">Coming in the next step.</p>
       )}
     </div>
