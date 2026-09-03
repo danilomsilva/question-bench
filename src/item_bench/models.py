@@ -41,3 +41,15 @@ class MultipleChoiceItem(ItemBase):
     type: Literal["multiple_choice"] = "multiple_choice"
     options: list[str] = Field(min_length=2)
     correct_answer: str = Field(min_length=1)
+
+
+class ShortAnswerItem(ItemBase):
+    """A short-answer question with a single expected answer.
+
+    Answer-tolerance for grading student responses is out of scope; the
+    item just carries the answer. "Stem doesn't contain the answer
+    verbatim" is checked by the eval harness, not here.
+    """
+
+    type: Literal["short_answer"] = "short_answer"
+    answer: str = Field(min_length=1)

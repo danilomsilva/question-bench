@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from item_bench.models import ItemBase, MultipleChoiceItem
+from item_bench.models import ItemBase, MultipleChoiceItem, ShortAnswerItem
 
 
 def _valid_kwargs() -> dict[str, str]:
@@ -54,3 +54,21 @@ def test_multiple_choice_allows_answer_not_in_options() -> None:
     item = MultipleChoiceItem(**{**_valid_mc_kwargs(), "correct_answer": "42"})
 
     assert item.correct_answer == "42"
+
+
+def test_short_answer_valid() -> None:
+    item = ShortAnswerItem(**_valid_kwargs(), answer="4")
+
+    assert item.type == "short_answer"
+    assert item.answer == "4"
+    assert len(item.id) == 32
+
+
+def test_short_answer_requires_non_blank_answer() -> None:
+    with pytest.raises(ValidationError):
+        ShortAnswerItem(**_valid_kwargs(), answer="")
+
+
+def test_short_answer_rejects_multiple_choice_fields() -> None:
+    with pytest.raises(ValidationError):
+        ShortAnswerItem(**_valid_kwargs(), answer="4", options=["3", "4"])
