@@ -133,6 +133,10 @@ Write it, one line on what it does, move on.
   re-explain rather than proceeding.
 - Don't optimise ahead of need. If you're adding something for
   robustness I didn't ask for, flag it as optional first.
+- Prefer repetition over abstraction. Don't extract a shared helper,
+  type alias, or constant until the duplication genuinely hurts. Inline
+  small things (e.g. `default_factory=lambda: ...`) rather than naming
+  them.
 
 ### 6. Progress tracking
 - `docs/implementation-plan.md` is the single source of truth for build
