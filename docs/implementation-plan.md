@@ -24,8 +24,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 
 ## Step 1.5 — CI (minimal now, grow later)
 Pulled forward from Step 6d so the pipeline is green from the start.
-- [ ] 1.5a `.github/workflows/ci.yml` — `uv sync --locked`, `ruff check`, `ruff format --check`, `pytest` on ubuntu-latest
-- [ ] 1.5b Confirm first run is green on GitHub
+- [x] 1.5a `.github/workflows/ci.yml` — `uv sync --locked`, `ruff check`, `ruff format --check`, `pytest` on ubuntu-latest
+- [x] 1.5b Confirm first run is green on GitHub — green in ~12s
 - Grow later: Mongo service container (Step 5), maybe an OS matrix, maybe a coverage gate
 
 ## Step 2 — Item data model
