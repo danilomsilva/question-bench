@@ -16,7 +16,7 @@ from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from item_bench.eval import EvaluationReport
+from item_bench.eval import EvaluationReport, PromptVersionStats
 from item_bench.models import Item, ItemAdapter
 
 
@@ -77,4 +77,26 @@ class MongoItemStore:
                 {key: value for key, value in doc.items() if key != "_id"}
             )
             for doc in docs
+        ]
+
+    async def pass_rate_by_prompt_version(self) -> list[PromptVersionStats]:
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$prompt_version",
+                    "evaluations": {"$sum": 1},
+                    "passed": {"$sum": {"$cond": ["$passed", 1, 0]}},
+                }
+            },
+            {"$sort": {"_id": 1}},
+        ]
+        rows = await self._reports.aggregate(pipeline).to_list(length=None)
+        return [
+            PromptVersionStats(
+                prompt_version=row["_id"],
+                evaluations=row["evaluations"],
+                passed=row["passed"],
+                pass_rate=row["passed"] / row["evaluations"],
+            )
+            for row in rows
         ]

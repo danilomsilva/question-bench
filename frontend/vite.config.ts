@@ -11,6 +11,7 @@ export default defineConfig({
     proxy: {
       "/generate": "http://localhost:8000",
       "/items": "http://localhost:8000",
+      "/stats": "http://localhost:8000",
       "/health": "http://localhost:8000",
     },
   },

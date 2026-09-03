@@ -138,6 +138,21 @@ async def test_reports_add_and_list(
     assert reports[0].score == 1.0
 
 
+async def test_pass_rate_by_prompt_version(
+    store: MongoItemStore, valid_mc: MultipleChoiceItem
+) -> None:
+    await store.add_report(evaluate(valid_mc))
+    await store.add_report(evaluate(valid_mc.model_copy(update={"skill_tag": "nope"})))
+
+    stats = await store.pass_rate_by_prompt_version()
+
+    assert len(stats) == 1
+    assert stats[0].prompt_version == valid_mc.prompt_version
+    assert stats[0].evaluations == 2
+    assert stats[0].passed == 1
+    assert stats[0].pass_rate == 0.5
+
+
 async def test_ensure_indexes_is_idempotent(mongo_db: AsyncIOMotorDatabase) -> None:
     await ensure_indexes(mongo_db)
     await ensure_indexes(mongo_db)  # second call must not raise

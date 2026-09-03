@@ -85,7 +85,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 7d `ItemsView` — `useQuery` on `GET /items` keyed by filters, `item_type`/`skill_tag` filter controls, table with row-click to select
 - [x] 7e `ItemDetailView` — read-only meta + edit form (`stem`, plus `options`/`correct_answer` or `answer`), `PATCH /items/{id}` via `useMutation`, invalidates item + list queries
 - [x] 7f `EvaluateSection` in the detail view — `POST /items/{id}/evaluate`, shows overall PASS/FAIL + score and a per-rule ✓/✗ list with failure detail
-- [ ] 7g `prompt_version` pass-rate view
+- [x] 7g `PassRateView` + new `GET /stats/pass-rate` endpoint — aggregates the `evaluations` collection by `prompt_version` (Mongo `$group` pipeline; in-memory groups in Python). Not in the brief's five endpoints, but "pass-rate deltas" had no reader; kept read-only.
 
 ## Step 8 — Wrap-up
 - [ ] 8a `README.md` — what it is, how to run, design decisions & trade-offs (interview defence)

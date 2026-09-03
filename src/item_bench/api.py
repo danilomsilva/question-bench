@@ -14,7 +14,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field, ValidationError
 
 from item_bench.db import lifespan
-from item_bench.eval import EvaluationReport, evaluate
+from item_bench.eval import EvaluationReport, PromptVersionStats, evaluate
 from item_bench.llm import GenerationError, ItemGenerator, StubItemGenerator
 from item_bench.models import Item, ItemAdapter
 from item_bench.settings import Settings, get_settings
@@ -145,3 +145,10 @@ async def evaluate_item(item_id: str, store: StoreDep) -> EvaluationReport:
             status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
         )
     return await store.add_report(evaluate(item))
+
+
+# Not one of the five endpoints in the brief, but "prompt changes show as
+# pass-rate deltas" needs a reader. Kept read-only and off to the side.
+@app.get("/stats/pass-rate", response_model=list[PromptVersionStats])
+async def pass_rate(store: StoreDep) -> list[PromptVersionStats]:
+    return await store.pass_rate_by_prompt_version()

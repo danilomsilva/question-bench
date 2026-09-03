@@ -111,6 +111,19 @@ class EvaluationReport(BaseModel):
     evaluated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
+class PromptVersionStats(BaseModel):
+    """Pass rate for every item ever evaluated under one prompt version.
+
+    This is the headline number: change the generation prompt, re-run the
+    evaluations, and compare ``pass_rate`` across versions.
+    """
+
+    prompt_version: str
+    evaluations: int
+    passed: int
+    pass_rate: float
+
+
 def evaluate(item: Item) -> EvaluationReport:
     """Run the rules that apply to this item's type and score the item."""
     if isinstance(item, MultipleChoiceItem):

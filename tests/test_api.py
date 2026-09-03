@@ -139,3 +139,25 @@ def test_evaluate_returns_and_persists_report(client: TestClient) -> None:
 
 def test_evaluate_missing_item(client: TestClient) -> None:
     assert client.post("/items/nope/evaluate").status_code == 404
+
+
+def test_pass_rate_starts_empty(client: TestClient) -> None:
+    assert client.get("/stats/pass-rate").json() == []
+
+
+def test_pass_rate_aggregates_by_prompt_version(client: TestClient) -> None:
+    ids = [item["id"] for item in _generate(client, count=2)]
+    for item_id in ids:
+        client.post(f"/items/{item_id}/evaluate")
+
+    # Break one item's skill tag, then evaluate it again: 3 evaluations, 2 passing.
+    client.patch(f"/items/{ids[0]}", json={"skill_tag": "not-a-real-tag"})
+    client.post(f"/items/{ids[0]}/evaluate")
+
+    rows = client.get("/stats/pass-rate").json()
+
+    assert len(rows) == 1
+    assert rows[0]["prompt_version"] == "stub-v1"
+    assert rows[0]["evaluations"] == 3
+    assert rows[0]["passed"] == 2
+    assert rows[0]["pass_rate"] == 2 / 3

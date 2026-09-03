@@ -11,9 +11,10 @@ async; the in-memory store simply doesn't await anything.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import Protocol
 
-from item_bench.eval import EvaluationReport
+from item_bench.eval import EvaluationReport, PromptVersionStats
 from item_bench.models import Item
 
 
@@ -36,6 +37,8 @@ class ItemStore(Protocol):
     async def add_report(self, report: EvaluationReport) -> EvaluationReport: ...
 
     async def list_reports(self, item_id: str) -> list[EvaluationReport]: ...
+
+    async def pass_rate_by_prompt_version(self) -> list[PromptVersionStats]: ...
 
 
 class InMemoryItemStore:
@@ -77,3 +80,20 @@ class InMemoryItemStore:
 
     async def list_reports(self, item_id: str) -> list[EvaluationReport]:
         return [r for r in self._reports if r.item_id == item_id]
+
+    async def pass_rate_by_prompt_version(self) -> list[PromptVersionStats]:
+        by_version: dict[str, list[EvaluationReport]] = defaultdict(list)
+        for report in self._reports:
+            by_version[report.prompt_version].append(report)
+        stats = []
+        for version, reports in sorted(by_version.items()):
+            passed = sum(1 for r in reports if r.passed)
+            stats.append(
+                PromptVersionStats(
+                    prompt_version=version,
+                    evaluations=len(reports),
+                    passed=passed,
+                    pass_rate=passed / len(reports),
+                )
+            )
+        return stats

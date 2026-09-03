@@ -2,6 +2,7 @@ import { useState } from "react";
 import GenerateView from "./views/GenerateView";
 import ItemsView from "./views/ItemsView";
 import ItemDetailView from "./views/ItemDetailView";
+import PassRateView from "./views/PassRateView";
 
 type Tab = "generate" | "items" | "passrate";
 
@@ -49,9 +50,7 @@ export default function App() {
         <ItemDetailView id={selectedId} onBack={() => setSelectedId(null)} />
       )}
 
-      {tab === "passrate" && (
-        <p className="text-sm text-gray-500">Coming in the next step.</p>
-      )}
+      {tab === "passrate" && <PassRateView />}
     </div>
   );
 }

@@ -46,6 +46,13 @@ export interface GenerateRequest {
   count: number;
 }
 
+export interface PromptVersionStats {
+  prompt_version: string;
+  evaluations: number;
+  passed: number;
+  pass_rate: number;
+}
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     headers: { "content-type": "application/json" },
@@ -81,4 +88,6 @@ export const api = {
 
   evaluate: (id: string) =>
     http<EvaluationReport>(`/items/${id}/evaluate`, { method: "POST" }),
+
+  passRate: () => http<PromptVersionStats[]>("/stats/pass-rate"),
 };
