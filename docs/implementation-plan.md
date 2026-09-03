@@ -65,8 +65,8 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 ## Step 5 — MongoDB integration
 - [x] 5a **(decision)** Driver — **motor** (async). Note: motor was deprecated May 2025 in favour of PyMongo's native `AsyncMongoClient`; chosen anyway. Store + routes go async as a result.
 - [x] 5b Connection lifecycle — `db.lifespan` builds/closes the motor client (lazy connect); `ItemStore` Protocol + `InMemoryItemStore` + all routes are now `async`; `get_store` returns Mongo when `app.state.mongo_db` is set, else in-memory
-- [ ] 5c Mongo-backed implementation of the store interface
-- [ ] 5d Document (de)serialisation — Pydantic ↔ BSON, `_id` handling
+- [x] 5c Mongo-backed store — `MongoItemStore` (collections `items`, `evaluations`), all `ItemStore` methods; list sorted by `created_at` for parity with the in-memory store
+- [x] 5d (De)serialisation — `model_dump(mode="python")` keeps `datetime` for BSON; item uuid is the `_id` (no second id); reads re-parse through `ItemAdapter`; client is `tz_aware`; round-trip tests allow sub-ms drift (BSON is ms precision). *Landed with 5c — the store can't exist without its serialisation.*
 - [ ] 5e Indexes — `skill_tag`, `prompt_version`, `type`, `created_at`
 - [ ] 5f **(decision)** Test strategy — `mongomock` vs testcontainers vs ephemeral service
 - [ ] 5g Verify: store tests pass against real Mongo, endpoint tests still green

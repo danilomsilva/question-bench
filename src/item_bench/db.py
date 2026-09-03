@@ -21,7 +21,9 @@ from item_bench.settings import get_settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    client: AsyncIOMotorClient = AsyncIOMotorClient(settings.mongo_url)
+    # tz_aware so BSON datetimes come back as timezone-aware UTC, matching
+    # how the models store them.
+    client: AsyncIOMotorClient = AsyncIOMotorClient(settings.mongo_url, tz_aware=True)
     app.state.mongo_client = client
     app.state.mongo_db = client[settings.mongo_db]
     try:
