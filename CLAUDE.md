@@ -125,7 +125,10 @@ Write it, one line on what it does, move on.
 ### 5. Standing rules
 - One concept at a time.
 - Tests before implementation for the eval rules.
-- Small, frequent commits with meaningful messages.
+- Small, frequent commits. Every commit message MUST start with a
+  semantic prefix (Conventional Commits): `feat:`, `fix:`, `docs:`,
+  `test:`, `refactor:`, `chore:`, `ci:`, `build:`, `perf:`, `style:`.
+  Example: `feat: add short_answer item model`.
 - If I approve something I clearly haven't understood, say so and
   re-explain rather than proceeding.
 - Don't optimise ahead of need. If you're adding something for
