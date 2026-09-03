@@ -3,7 +3,12 @@
 import pytest
 from pydantic import ValidationError
 
-from item_bench.models import ItemBase, MultipleChoiceItem, ShortAnswerItem
+from item_bench.models import (
+    ItemAdapter,
+    ItemBase,
+    MultipleChoiceItem,
+    ShortAnswerItem,
+)
 
 
 def _valid_kwargs() -> dict[str, str]:
@@ -72,3 +77,34 @@ def test_short_answer_requires_non_blank_answer() -> None:
 def test_short_answer_rejects_multiple_choice_fields() -> None:
     with pytest.raises(ValidationError):
         ShortAnswerItem(**_valid_kwargs(), answer="4", options=["3", "4"])
+
+
+def test_adapter_routes_multiple_choice() -> None:
+    item = ItemAdapter.validate_python(
+        {
+            **_valid_kwargs(),
+            "type": "multiple_choice",
+            "options": ["3", "4"],
+            "correct_answer": "4",
+        }
+    )
+
+    assert isinstance(item, MultipleChoiceItem)
+
+
+def test_adapter_routes_short_answer() -> None:
+    item = ItemAdapter.validate_python(
+        {**_valid_kwargs(), "type": "short_answer", "answer": "4"}
+    )
+
+    assert isinstance(item, ShortAnswerItem)
+
+
+def test_adapter_rejects_unknown_type() -> None:
+    with pytest.raises(ValidationError):
+        ItemAdapter.validate_python({**_valid_kwargs(), "type": "essay", "answer": "x"})
+
+
+def test_adapter_rejects_missing_type() -> None:
+    with pytest.raises(ValidationError):
+        ItemAdapter.validate_python({**_valid_kwargs(), "answer": "4"})

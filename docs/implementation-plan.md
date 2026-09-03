@@ -33,7 +33,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 2b Shared base fields — `ItemBase`: uuid4 `id`, `stem`, `skill_tag`, `prompt_version`, `created_at`/`updated_at`, `extra="forbid"` (`status` deferred to Step 4)
 - [x] 2c `multiple_choice` model — `MultipleChoiceItem`: `options: list[str]` (2+) + `correct_answer` (flat, not option objects); shape-only validation
 - [x] 2d `short_answer` model — `ShortAnswerItem`: single `answer: str` (grading tolerance is out of scope)
-- [ ] 2e Discriminated union + parsing (Pydantic `Field(discriminator=...)`)
+- [x] 2e Discriminated union + parsing — `Item = Annotated[MC | SA, Field(discriminator="type")]`, `ItemAdapter = TypeAdapter(Item)`
 - [ ] 2f Allowed `skill_tag` list — where the constant lives
 - [ ] 2g Example instances / fixtures for tests
 - [ ] 2h Verify: models validate good input, reject bad input

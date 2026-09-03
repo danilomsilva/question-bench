@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 
 class ItemBase(BaseModel):
@@ -53,3 +53,16 @@ class ShortAnswerItem(ItemBase):
 
     type: Literal["short_answer"] = "short_answer"
     answer: str = Field(min_length=1)
+
+
+# Any item. Pydantic routes a raw dict to the right model by its "type"
+# field; a missing or unknown "type" is a single clear validation error.
+Item = Annotated[
+    MultipleChoiceItem | ShortAnswerItem,
+    Field(discriminator="type"),
+]
+
+# A bare union has no .model_validate(); TypeAdapter gives us one.
+# Callers parse untrusted data (DB docs, LLM output) via
+# ItemAdapter.validate_python(...).
+ItemAdapter = TypeAdapter(Item)
