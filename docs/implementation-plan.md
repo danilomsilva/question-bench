@@ -22,8 +22,14 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] 1e `pytest` config — `testpaths=tests`, `--import-mode=importlib`, strict markers/config, `xfail_strict`
 - [x] 1g Verify: `uv sync` + `ruff check` + `ruff format --check` + `pytest` all clean
 
+## Step 1.5 — CI (minimal now, grow later)
+Pulled forward from Step 6d so the pipeline is green from the start.
+- [ ] 1.5a `.github/workflows/ci.yml` — `uv sync --locked`, `ruff check`, `ruff format --check`, `pytest` on ubuntu-latest
+- [ ] 1.5b Confirm first run is green on GitHub
+- Grow later: Mongo service container (Step 5), maybe an OS matrix, maybe a coverage gate
+
 ## Step 2 — Item data model
-- [ ] 2a **(decision)** Collection strategy — single collection with a `type` discriminator
+- [x] 2a **(decision)** Collection strategy → **discriminated union (shared base + per-type models) + single `items` collection**
 - [ ] 2b Shared base fields — `id`, `type`, `skill_tag`, `prompt_version`, timestamps, `status`
 - [ ] 2c `multiple_choice` model — stem, options, correct-answer representation
 - [ ] 2d `short_answer` model — stem, accepted answer(s)
@@ -65,11 +71,11 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [ ] 5f **(decision)** Test strategy — `mongomock` vs testcontainers vs ephemeral service
 - [ ] 5g Verify: store tests pass against real Mongo, endpoint tests still green
 
-## Step 6 — Infra (built up line by line, not pasted)
-- [ ] 6a `Dockerfile` — multi-stage, explained directive by directive
+## Step 6 — Infra
+- [ ] 6a `Dockerfile` — multi-stage
 - [ ] 6b `.dockerignore`
 - [ ] 6c `docker-compose.yml` — app + mongo, volumes, env
-- [ ] 6d GitHub Actions workflow — `ruff` + `pytest`, Mongo service container
+- [ ] 6d Extend CI (from Step 1.5) — add Mongo service container
 - [ ] 6e Verify: `docker compose up` runs the app end to end; CI green on a pushed branch
 
 ## Step 7 — Frontend (build-without-asking)
