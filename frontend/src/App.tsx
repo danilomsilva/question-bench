@@ -1,6 +1,7 @@
 import { useState } from "react";
 import GenerateView from "./views/GenerateView";
 import ItemsView from "./views/ItemsView";
+import ItemDetailView from "./views/ItemDetailView";
 
 type Tab = "generate" | "items" | "passrate";
 
@@ -45,15 +46,7 @@ export default function App() {
         <ItemsView onSelect={setSelectedId} />
       )}
       {tab === "items" && selectedId !== null && (
-        <div>
-          <button
-            onClick={() => setSelectedId(null)}
-            className="mb-3 text-sm text-blue-600"
-          >
-            ← back to items
-          </button>
-          <p className="text-sm text-gray-500">Detail view lands in 7e.</p>
-        </div>
+        <ItemDetailView id={selectedId} onBack={() => setSelectedId(null)} />
       )}
 
       {tab === "passrate" && (

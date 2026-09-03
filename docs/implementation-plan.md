@@ -83,7 +83,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 7b `src/api.ts` — hand-written types mirroring the Pydantic models + typed `fetch` wrappers for all five endpoints; `QueryClientProvider` wired in `main.tsx`
 - [x] 7c `GenerateView` — form (type / skill_tag / count), `useMutation` on POST /generate, invalidates the items query on success
 - [x] 7d `ItemsView` — `useQuery` on `GET /items` keyed by filters, `item_type`/`skill_tag` filter controls, table with row-click to select
-- [ ] 7e Item detail + edit screen
+- [x] 7e `ItemDetailView` — read-only meta + edit form (`stem`, plus `options`/`correct_answer` or `answer`), `PATCH /items/{id}` via `useMutation`, invalidates item + list queries
 - [ ] 7f Evaluate action + results display
 - [ ] 7g `prompt_version` pass-rate view
 
