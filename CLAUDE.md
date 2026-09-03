@@ -139,8 +139,9 @@ Write it, one line on what it does, move on.
   order and progress. Every unit of work maps to a checkbox there.
 - Work top to bottom. Don't start the next item until the current one is
   done, its box is ticked, and the change is pushed.
-- The tick and the work ship together: when a unit is finished, check its
-  box in the same commit (or the commit right before the push), never
-  after.
+- Ticking boxes is NOT its own task. Never make a commit or push whose
+  only purpose is checking boxes in the plan. The tick goes in the SAME
+  commit as the work it describes — stage the plan file alongside the
+  code, always. No follow-up "tick the plan" commit, ever.
 - If we learn something that changes the plan, update the file — add,
   split, or reorder items — and say so.
