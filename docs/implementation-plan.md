@@ -63,7 +63,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 4j Verify: 49 tests green (14 `TestClient` endpoint tests), ruff clean
 
 ## Step 5 — MongoDB integration
-- [ ] 5a **(decision)** Driver — `motor` (async) vs `pymongo`
+- [x] 5a **(decision)** Driver — **motor** (async). Note: motor was deprecated May 2025 in favour of PyMongo's native `AsyncMongoClient`; chosen anyway. Store + routes go async as a result.
 - [ ] 5b Connection lifecycle — `lifespan` startup/shutdown
 - [ ] 5c Mongo-backed implementation of the store interface
 - [ ] 5d Document (de)serialisation — Pydantic ↔ BSON, `_id` handling
