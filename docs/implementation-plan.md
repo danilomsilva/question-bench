@@ -41,14 +41,14 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 ## Step 3 — Eval rules (tests first)
 - [x] 3a Test-data convention — keep only `valid_mc`/`valid_sa`; each rule test builds its broken item inline via `.model_copy(update=...)`. Rule tests in `tests/test_eval_rules.py`, harness code in `src/item_bench/eval.py`
 - [x] 3g Result value object — `RuleResult(rule, passed, detail)`, frozen dataclass (pulled ahead of the rules so each rule has a consistent return type)
-- [ ] 3b Rule: exactly one correct answer — test, then implement
-- [ ] 3c Rule: no duplicate options — test, then implement
-- [ ] 3d Rule: distractors within ±30% length of correct answer — test, then implement
-- [ ] 3e Rule: stem does not contain the answer verbatim — test, then implement
-- [ ] 3f Rule: `skill_tag` present and in allowed list — test, then implement
-- [ ] 3h Aggregator — run the rules applicable to an item's type, return per-rule results + overall score — test, then implement
-- [ ] 3i **(decision)** Score persistence shape — how a score is stored against `prompt_version`
-- [ ] 3j Verify: full suite green, predict-then-run confirmed
+- [x] 3b Rule: `exactly_one_correct_answer` (MC) — exactly one option equals `correct_answer`
+- [x] 3c Rule: `no_duplicate_options` (MC) — every option string distinct
+- [x] 3d Rule: `distractor_length_within_30pct` (MC) — each distractor's length within 0.7–1.3× the correct answer's
+- [x] 3e Rule: `stem_excludes_answer` (MC + SA) — answer not a verbatim (case-sensitive) substring of the stem
+- [x] 3f Rule: `skill_tag_allowed` (MC + SA) — `skill_tag` in `ALLOWED_SKILL_TAGS`
+- [x] 3h Aggregator — `evaluate(item) -> EvaluationReport`: runs the rules for the item's type (MC: 5, SA: 2), `score` = passed/total, `passed` = all passed
+- [x] 3i **(decision)** Score persistence shape — store one `EvaluationReport` document per evaluation, append-only (not overwrite), queried by `prompt_version` / `item_id` / `evaluated_at`. Rationale: pass-rate-delta analysis needs history across prompt versions and re-runs. Actual Mongo write lands in Step 5 — **flag if you disagree before then.**
+- [x] 3j Verify: 35 tests green (rules + aggregator + serialisation), ruff clean
 
 ## Step 4 — FastAPI app + endpoints
 - [ ] 4a App skeleton + settings (`pydantic-settings`, env var for the Gemini key)
