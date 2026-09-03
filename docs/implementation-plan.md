@@ -78,8 +78,8 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 6d CI Mongo service — added back in 5f; `uvicorn[standard]` added as a runtime dep here
 - [x] 6e Verify: new `docker-smoke` CI job runs `docker compose up --build`, waits on `/health`, then `POST /generate` + `GET /items` to prove the container talks to Mongo end to end
 
-## Step 7 — Frontend (build-without-asking)
-- [ ] 7a Vite + React + TS + Tailwind scaffold
+## Step 7 — Frontend (build-without-asking), kept in this repo under `frontend/`
+- [x] 7a Vite 6 + React 19 + TS + Tailwind 4 scaffold; dev proxy to `:8000`; `frontend` CI job (`npm ci` + `npm run build`, which also typechecks)
 - [ ] 7b API client + TanStack Query setup
 - [ ] 7c Generate screen — form (type, `skill_tag`, count)
 - [ ] 7d Items list screen
