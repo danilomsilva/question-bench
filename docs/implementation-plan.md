@@ -51,16 +51,16 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 3j Verify: 35 tests green (rules + aggregator + serialisation), ruff clean
 
 ## Step 4 — FastAPI app + endpoints
-- [ ] 4a App skeleton + settings (`pydantic-settings`, env var for the Gemini key)
-- [ ] 4b **(decision)** Store interface (Protocol/ABC) + in-memory implementation
-- [ ] 4c `POST /generate` — request model, Gemini client (stubbed first), map response to item model, persist
-- [ ] 4d `GET /items` — list; **(decision)** filtering + pagination
-- [ ] 4e `GET /items/{id}`
-- [ ] 4f `PATCH /items/{id}` — partial-update semantics, re-validation
-- [ ] 4g `POST /items/{id}/evaluate` — run the harness, persist the score
-- [ ] 4h Error handling + response models — 404, 422, Gemini failure
-- [ ] 4i Dependency injection (`Depends`) for store + services
-- [ ] 4j Verify: endpoint tests via `TestClient`, all green
+- [x] 4a App skeleton + `Settings` (`pydantic-settings`; `gemini_api_key` optional, `prompt_version` default `stub-v1`) + `GET /health`
+- [x] 4b **(decision)** `ItemStore` **Protocol** (structural, nothing inherits) + `InMemoryItemStore` (dict-backed, also holds `EvaluationReport`s)
+- [x] 4c `POST /generate` — `GenerateRequest` (type, skill_tag, count 1–10), `StubItemGenerator` behind an `ItemGenerator` Protocol produces rule-passing items, persisted, 201
+- [x] 4d `GET /items` — **(decision)** filters `item_type` + `skill_tag`, offset/limit pagination (limit 1–200 default 50); cursor pagination noted as overkill at this scope
+- [x] 4e `GET /items/{id}` — 404 when missing
+- [x] 4f `PATCH /items/{id}` — JSON body; protected fields (`id`/`type`/`created_at`/`prompt_version`) → 422; merge → re-parse through `ItemAdapter` (full re-validation) → bump `updated_at`
+- [x] 4g `POST /items/{id}/evaluate` — runs `evaluate()`, stores the `EvaluationReport`, returns it
+- [x] 4h Errors + `response_model` — 404 (missing), 422 (bad body / protected / shape), 502 (`GenerationError`)
+- [x] 4i DI via `Depends` — `get_store` / `get_generator` / `get_settings`; tests swap the store with `app.dependency_overrides`
+- [x] 4j Verify: 49 tests green (14 `TestClient` endpoint tests), ruff clean
 
 ## Step 5 — MongoDB integration
 - [ ] 5a **(decision)** Driver — `motor` (async) vs `pymongo`
