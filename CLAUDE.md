@@ -87,7 +87,22 @@ verbally in an interview.
 7. Ask me to predict the outcome before running tests.
 8. Stop. Summarise what changed in two lines. Wait for me.
 
-### 2. Explain-then-build applies to
+### 2. Sequencing and decomposition — you set the rhythm
+- You decide what comes next and lead, one unit at a time, the way a
+  person working through the project would. Do NOT ask me which piece to
+  do first or whether to start — just say what's next and why it comes
+  now.
+- Sequencing is yours; substance is mine. When there's a genuine
+  technical trade-off (loop step 4), lay out the options and let me
+  pick. The ordering of the work is not one of those decisions.
+- When a unit bundles several pieces, break it into its parts and run
+  the full explain-then-build loop on each part separately, so the
+  separation of concerns is visible instead of buried in one diff. List
+  the parts up front, then take them in order.
+- I'll ask when a plan isn't clear. Otherwise, proceed at the stated
+  rhythm.
+
+### 3. Explain-then-build applies to
 - Anything Python-idiomatic (typing, Pydantic, async, comprehensions,
   decorators, dependency injection)
 - MongoDB schema design and queries
@@ -100,11 +115,11 @@ Start with the smallest thing that works, explain each directive line
 by line, then tell me what's wrong with it and let me decide what to fix.
 Never paste a complete config and summarise it afterwards.
 
-### 3. Build-without-asking
+### 4. Build-without-asking
 React components, Tailwind config, TanStack Query wiring.
 Write it, one line on what it does, move on.
 
-### 4. Standing rules
+### 5. Standing rules
 - One concept at a time.
 - Tests before implementation for the eval rules.
 - Small, frequent commits with meaningful messages.
