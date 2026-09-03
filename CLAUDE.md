@@ -78,8 +78,9 @@ verbally in an interview.
 ### 1. Default loop — for every unit of work
 1. State what we're about to build and why it comes now.
 2. Explain the approach BEFORE writing code. Use plan mode.
-3. Where a TS/Node equivalent exists, explain via that analogy — then
-   say where the analogy breaks down.
+3. Explain the thing directly, on its own terms. NO analogies —
+   not TS/Node, not React, not any other framework. I asked for them
+   early on; they are now noise. Just say what it is and what it does.
 4. If there's a real trade-off, give me the options and let ME choose.
    Don't pick for me and don't hide the alternative.
 5. WAIT for my approval.
