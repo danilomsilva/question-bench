@@ -81,6 +81,8 @@ verbally in an interview.
 3. Explain the thing directly, on its own terms. NO analogies —
    not TS/Node, not React, not any other framework. I asked for them
    early on; they are now noise. Just say what it is and what it does.
+   Explain at the level of intent and the decisions that matter — do
+   NOT walk through a config or file line by line unless I ask.
 4. If there's a real trade-off, give me the options and let ME choose.
    Don't pick for me and don't hide the alternative.
 5. WAIT for my approval.
@@ -112,9 +114,9 @@ verbally in an interview.
 - Dockerfile, docker-compose, GitHub Actions
 
 For infra specifically: build up, don't hand me a finished file.
-Start with the smallest thing that works, explain each directive line
-by line, then tell me what's wrong with it and let me decide what to fix.
-Never paste a complete config and summarise it afterwards.
+Start with the smallest thing that works and grow it. Explain what it's
+for and call out the decisions that matter and their trade-offs — not
+every directive. Line-by-line only if I ask.
 
 ### 4. Build-without-asking
 React components, Tailwind config, TanStack Query wiring.

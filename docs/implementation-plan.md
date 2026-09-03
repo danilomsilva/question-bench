@@ -19,8 +19,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] 1c `pyproject.toml` — project metadata, where dependencies are declared
 - [x] 1f `.gitignore` — pulled ahead of 1d/1e: a `.pyc` slipped into a commit, needed the ignore rules in place first
 - [x] 1d `ruff` config — lint + format rules (`E F I UP B SIM`, line-length 88)
-- [ ] 1e `pytest` config — test discovery, import mode
-- [ ] 1g Verify: fresh install works, `ruff` and `pytest` both run clean on an empty suite
+- [x] 1e `pytest` config — `testpaths=tests`, `--import-mode=importlib`, strict markers/config, `xfail_strict`
+- [x] 1g Verify: `uv sync` + `ruff check` + `ruff format --check` + `pytest` all clean
 
 ## Step 2 — Item data model
 - [ ] 2a **(decision)** Collection strategy — single collection with a `type` discriminator
