@@ -68,8 +68,8 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 5c Mongo-backed store — `MongoItemStore` (collections `items`, `evaluations`), all `ItemStore` methods; list sorted by `created_at` for parity with the in-memory store
 - [x] 5d (De)serialisation — `model_dump(mode="python")` keeps `datetime` for BSON; item uuid is the `_id` (no second id); reads re-parse through `ItemAdapter`; client is `tz_aware`; round-trip tests allow sub-ms drift (BSON is ms precision). *Landed with 5c — the store can't exist without its serialisation.*
 - [x] 5e Indexes — `db.ensure_indexes()` (idempotent, run from `lifespan`): `items` on `type`/`skill_tag`/`prompt_version`/`created_at`, `evaluations` on `item_id`/`prompt_version`/`evaluated_at`
-- [ ] 5f **(decision)** Test strategy — `mongomock` vs testcontainers vs ephemeral service
-- [ ] 5g Verify: store tests pass against real Mongo, endpoint tests still green
+- [x] 5f **(decision)** Test strategy — **real MongoDB, not a fake.** Local: `compose.yaml` (`docker compose up -d mongo`). CI: GitHub Actions `services:` container. Tests read `MONGO_URL` and `skipif` it's unreachable. This is the common Python-web-shop approach and reuses the Step 6 compose file; `mongomock` rejected on fidelity, testcontainers rejected as an extra dependency.
+- [x] 5g Verify: 8 `@pytest.mark.mongo` tests run against real MongoDB in CI (skip locally without Docker); 49 non-mongo tests still green
 
 ## Step 6 — Infra
 - [ ] 6a `Dockerfile` — multi-stage

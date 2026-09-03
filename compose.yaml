@@ -1,0 +1,12 @@
+# Local dependencies for development and integration tests.
+# Step 6 adds the `app` service on top of this.
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
