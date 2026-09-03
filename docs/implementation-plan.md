@@ -91,4 +91,4 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 8d Real Gemini generator — `GeminiItemGenerator` (`google-genai`), used when `GEMINI_API_KEY` is set, stub otherwise. The interesting part — raw LLM JSON → validated documents via the models — is pure and unit-tested; the HTTP call is not (no key in CI).
 - [x] 8a `README.md` — what/how-to-run/API/eval rules/design decisions
 - [x] 8b `scripts/seed.py` — hits a running instance to generate items across skill tags and evaluate each
-- [ ] 8c Final pass — `ruff` clean, full test suite green, `compose up` works end to end, CI annotations cleared
+- [x] 8c Final pass — ruff clean, 60 tests green in CI (55 + 5 mongo), frontend build green, docker-smoke green, `setup-node` bumped to v5 (Node 20 annotation gone)
