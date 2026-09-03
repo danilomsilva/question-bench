@@ -31,7 +31,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 ## Step 2 — Item data model
 - [x] 2a **(decision)** Collection strategy → **discriminated union (shared base + per-type models) + single `items` collection**
 - [x] 2b Shared base fields — `ItemBase`: uuid4 `id`, `stem`, `skill_tag`, `prompt_version`, `created_at`/`updated_at`, `extra="forbid"` (`status` deferred to Step 4)
-- [ ] 2c `multiple_choice` model — stem, options, correct-answer representation
+- [x] 2c `multiple_choice` model — `MultipleChoiceItem`: `options: list[str]` (2+) + `correct_answer` (flat, not option objects); shape-only validation
 - [ ] 2d `short_answer` model — stem, accepted answer(s)
 - [ ] 2e Discriminated union + parsing (Pydantic `Field(discriminator=...)`)
 - [ ] 2f Allowed `skill_tag` list — where the constant lives

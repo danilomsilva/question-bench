@@ -8,16 +8,9 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
-
-
-def _new_id() -> str:
-    return uuid.uuid4().hex
-
-
-def _utc_now() -> datetime:
-    return datetime.now(UTC)
 
 
 class ItemBase(BaseModel):
@@ -29,9 +22,22 @@ class ItemBase(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    id: str = Field(default_factory=_new_id)
+    id: str = Field(default_factory=lambda: uuid.uuid4().hex)
     stem: str = Field(min_length=1)
     skill_tag: str = Field(min_length=1)
     prompt_version: str = Field(min_length=1)
-    created_at: datetime = Field(default_factory=_utc_now)
-    updated_at: datetime = Field(default_factory=_utc_now)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class MultipleChoiceItem(ItemBase):
+    """A multiple-choice question.
+
+    Shape only: 2+ options and a non-empty ``correct_answer``. Whether
+    exactly one option matches the answer, whether options are unique,
+    and distractor lengths are all checked by the eval harness, not here.
+    """
+
+    type: Literal["multiple_choice"] = "multiple_choice"
+    options: list[str] = Field(min_length=2)
+    correct_answer: str = Field(min_length=1)
