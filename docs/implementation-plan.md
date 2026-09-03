@@ -17,9 +17,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] 1a **(decision)** Dependency manager: `uv` / Poetry / `pip`+`venv` → **uv**
 - [x] 1b Folder layout (`src/` layout vs flat, where tests live) → **src/ layout** via `uv init --lib`
 - [x] 1c `pyproject.toml` — project metadata, where dependencies are declared
+- [x] 1f `.gitignore` — pulled ahead of 1d/1e: a `.pyc` slipped into a commit, needed the ignore rules in place first
 - [ ] 1d `ruff` config — lint + format rules
 - [ ] 1e `pytest` config — test discovery, import mode
-- [ ] 1f `.gitignore`
 - [ ] 1g Verify: fresh install works, `ruff` and `pytest` both run clean on an empty suite
 
 ## Step 2 — Item data model
