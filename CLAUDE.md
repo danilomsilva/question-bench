@@ -127,3 +127,14 @@ Write it, one line on what it does, move on.
   re-explain rather than proceeding.
 - Don't optimise ahead of need. If you're adding something for
   robustness I didn't ask for, flag it as optional first.
+
+### 6. Progress tracking
+- `docs/implementation-plan.md` is the single source of truth for build
+  order and progress. Every unit of work maps to a checkbox there.
+- Work top to bottom. Don't start the next item until the current one is
+  done, its box is ticked, and the change is pushed.
+- The tick and the work ship together: when a unit is finished, check its
+  box in the same commit (or the commit right before the push), never
+  after.
+- If we learn something that changes the plan, update the file — add,
+  split, or reorder items — and say so.
