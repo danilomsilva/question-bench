@@ -8,6 +8,7 @@ the harness, and shape the response. All logic lives in ``models``,
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Annotated, Any, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
@@ -51,8 +52,17 @@ def get_store(request: Request) -> ItemStore:
     return _memory_store
 
 
+@lru_cache
+def _gemini_generator(api_key: str) -> ItemGenerator:
+    from item_bench.llm import GeminiItemGenerator
+
+    return GeminiItemGenerator(api_key)
+
+
 def get_generator() -> ItemGenerator:
-    return _generator
+    """Gemini when a key is configured, the deterministic stub otherwise."""
+    api_key = get_settings().gemini_api_key
+    return _gemini_generator(api_key) if api_key else _generator
 
 
 StoreDep = Annotated[ItemStore, Depends(get_store)]
