@@ -1,0 +1,16 @@
+.venv/
+.git/
+.github/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+tests/
+docs/
+.env
+.env.*
+
+# Keep README.md (the build backend reads it); drop the rest.
+*.md
+!README.md

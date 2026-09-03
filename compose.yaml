@@ -1,5 +1,6 @@
-# Local dependencies for development and integration tests.
-# Step 6 adds the `app` service on top of this.
+# Local stack: the API plus its MongoDB.
+#   docker compose up          - run the app on http://localhost:8000
+#   docker compose up -d mongo - just Mongo, for running the test suite
 services:
   mongo:
     image: mongo:7
@@ -7,6 +8,21 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+    depends_on:
+      mongo:
+        condition: service_healthy
 
 volumes:
   mongo-data:

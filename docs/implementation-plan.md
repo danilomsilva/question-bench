@@ -72,11 +72,11 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 5g Verify: 8 `@pytest.mark.mongo` tests run against real MongoDB in CI (skip locally without Docker); 49 non-mongo tests still green
 
 ## Step 6 — Infra
-- [ ] 6a `Dockerfile` — multi-stage
-- [ ] 6b `.dockerignore`
-- [ ] 6c `docker-compose.yml` — app + mongo, volumes, env
-- [ ] 6d Extend CI (from Step 1.5) — add Mongo service container
-- [ ] 6e Verify: `docker compose up` runs the app end to end; CI green on a pushed branch
+- [x] 6a `Dockerfile` — 2-stage (uv builder → slim runtime), deps cached as their own layer, non-root user, `uvicorn` CMD
+- [x] 6b `.dockerignore` — keeps `README.md` (build backend needs it), drops `.venv`/`tests`/`docs`/caches/env
+- [x] 6c `compose.yaml` — `app` (built here) + `mongo` (healthcheck + `depends_on: service_healthy`); `MONGO_URL=mongodb://mongo:27017`
+- [x] 6d CI Mongo service — added back in 5f; `uvicorn[standard]` added as a runtime dep here
+- [x] 6e Verify: new `docker-smoke` CI job runs `docker compose up --build`, waits on `/health`, then `POST /generate` + `GET /items` to prove the container talks to Mongo end to end
 
 ## Step 7 — Frontend (build-without-asking)
 - [ ] 7a Vite + React + TS + Tailwind scaffold
