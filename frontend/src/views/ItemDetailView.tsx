@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, type Item } from "../api";
+import { api, type EvaluationReport, type Item } from "../api";
 
 export default function ItemDetailView({
   id,
@@ -25,9 +25,61 @@ export default function ItemDetailView({
         <>
           <Meta item={item} />
           <EditForm key={item.updated_at} item={item} />
+          <EvaluateSection id={item.id} />
         </>
       )}
     </section>
+  );
+}
+
+function EvaluateSection({ id }: { id: string }) {
+  const mutation = useMutation({ mutationFn: () => api.evaluate(id) });
+
+  return (
+    <div className="mt-6 border-t border-gray-200 pt-4">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => mutation.mutate()}
+          disabled={mutation.isPending}
+          className="rounded border border-black px-4 py-2 text-sm disabled:opacity-50"
+        >
+          {mutation.isPending ? "Checking…" : "Run quality check"}
+        </button>
+        {mutation.data && (
+          <span
+            className={`text-sm font-semibold ${
+              mutation.data.passed ? "text-green-700" : "text-red-600"
+            }`}
+          >
+            {mutation.data.passed ? "PASS" : "FAIL"} · score{" "}
+            {mutation.data.score.toFixed(2)}
+          </span>
+        )}
+      </div>
+
+      {mutation.isError && (
+        <p className="mt-2 text-sm text-red-600">{String(mutation.error)}</p>
+      )}
+      {mutation.data && <RuleList report={mutation.data} />}
+    </div>
+  );
+}
+
+function RuleList({ report }: { report: EvaluationReport }) {
+  return (
+    <ul className="mt-3 space-y-1 text-sm">
+      {report.results.map((result) => (
+        <li key={result.rule} className="flex gap-2">
+          <span className={result.passed ? "text-green-700" : "text-red-600"}>
+            {result.passed ? "✓" : "✗"}
+          </span>
+          <span className="font-mono">{result.rule}</span>
+          {result.detail && (
+            <span className="text-gray-500">— {result.detail}</span>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 

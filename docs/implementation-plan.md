@@ -84,7 +84,7 @@ Pulled forward from Step 6d so the pipeline is green from the start.
 - [x] 7c `GenerateView` — form (type / skill_tag / count), `useMutation` on POST /generate, invalidates the items query on success
 - [x] 7d `ItemsView` — `useQuery` on `GET /items` keyed by filters, `item_type`/`skill_tag` filter controls, table with row-click to select
 - [x] 7e `ItemDetailView` — read-only meta + edit form (`stem`, plus `options`/`correct_answer` or `answer`), `PATCH /items/{id}` via `useMutation`, invalidates item + list queries
-- [ ] 7f Evaluate action + results display
+- [x] 7f `EvaluateSection` in the detail view — `POST /items/{id}/evaluate`, shows overall PASS/FAIL + score and a per-rule ✓/✗ list with failure detail
 - [ ] 7g `prompt_version` pass-rate view
 
 ## Step 8 — Wrap-up
