@@ -1,17 +1,16 @@
-"""Shared fixtures: a known-good item of each type.
+"""Shared fixtures: a known-good question of each type.
 
 These pass every eval rule (added in Step 3). Tests that need a
-rule-violating item build one by copying a fixture with a bad field.
+rule-violating question build one by copying a fixture with a bad field.
 """
 
 import pytest
-
-from item_bench.models import MultipleChoiceItem, ShortAnswerItem
+from question_bench.models import MultipleChoiceQuestion, ShortAnswerQuestion
 
 
 @pytest.fixture
-def valid_mc() -> MultipleChoiceItem:
-    return MultipleChoiceItem(
+def valid_mc() -> MultipleChoiceQuestion:
+    return MultipleChoiceQuestion(
         stem="Which number is prime?",
         skill_tag="arithmetic",
         prompt_version="v1",
@@ -21,8 +20,8 @@ def valid_mc() -> MultipleChoiceItem:
 
 
 @pytest.fixture
-def valid_sa() -> ShortAnswerItem:
-    return ShortAnswerItem(
+def valid_sa() -> ShortAnswerQuestion:
+    return ShortAnswerQuestion(
         stem="What is ten divided by two?",
         skill_tag="arithmetic",
         prompt_version="v1",

@@ -1,17 +1,15 @@
-"""Populate a running item-bench instance with example data.
+"""Populate a running question-bench instance with example data.
 
     uv run python scripts/seed.py                     # http://localhost:8000
     API_BASE=http://host:8000 uv run python scripts/seed.py
 
-Generates a handful of items across skill tags and evaluates each, so the
-Items and Pass-rate views have something to show.
+Generates a handful of questions across skill tags and evaluates each, so the
+Questions and Pass-rate views have something to show.
 """
 
 from __future__ import annotations
-
 import os
 import sys
-
 import httpx
 
 API_BASE = os.getenv("API_BASE", "http://localhost:8000")
@@ -28,18 +26,22 @@ def main() -> int:
         client.get("/health").raise_for_status()
 
         created: list[dict] = []
-        for item_type, skill_tag, count in PLAN:
+        for question_type, skill_tag, count in PLAN:
             response = client.post(
                 "/generate",
-                json={"item_type": item_type, "skill_tag": skill_tag, "count": count},
+                json={
+                    "question_type": question_type,
+                    "skill_tag": skill_tag,
+                    "count": count,
+                },
             )
             response.raise_for_status()
             created.extend(response.json())
 
-        for item in created:
-            client.post(f"/items/{item['id']}/evaluate").raise_for_status()
+        for question in created:
+            client.post(f"/questions/{question['id']}/evaluate").raise_for_status()
 
-    print(f"seeded {len(created)} items and evaluated each")
+    print(f"seeded {len(created)} questions and evaluated each")
     return 0
 
 

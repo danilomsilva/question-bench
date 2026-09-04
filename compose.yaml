@@ -1,6 +1,7 @@
 # Local stack: the API plus its MongoDB.
 #   docker compose up          - run the app on http://localhost:8000
 #   docker compose up -d mongo - just Mongo, for running the test suite
+name: question-bench
 services:
   mongo:
     image: mongo:7

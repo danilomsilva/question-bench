@@ -1,31 +1,31 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, type EvaluationReport, type Item } from "../api";
+import { api, type EvaluationReport, type Question } from "../api";
 
-export default function ItemDetailView({
+export default function QuestionDetailView({
   id,
   onBack,
 }: {
   id: string;
   onBack: () => void;
 }) {
-  const { data: item, isLoading, isError, error } = useQuery({
-    queryKey: ["item", id],
-    queryFn: () => api.getItem(id),
+  const { data: question, isLoading, isError, error } = useQuery({
+    queryKey: ["question", id],
+    queryFn: () => api.getQuestion(id),
   });
 
   return (
     <section>
       <button onClick={onBack} className="mb-3 text-sm text-blue-600">
-        ← back to items
+        ← back to questions
       </button>
       {isLoading && <p className="text-sm text-gray-500">Loading…</p>}
       {isError && <p className="text-sm text-red-600">{String(error)}</p>}
-      {item && (
+      {question && (
         <>
-          <Meta item={item} />
-          <EditForm key={item.updated_at} item={item} />
-          <EvaluateSection id={item.id} />
+          <Meta question={question} />
+          <EditForm key={question.updated_at} question={question} />
+          <EvaluateSection id={question.id} />
         </>
       )}
     </section>
@@ -37,7 +37,7 @@ function EvaluateSection({ id }: { id: string }) {
 
   return (
     <div className="mt-6 border-t border-gray-200 pt-4">
-      <div className="flex items-center gap-3">
+      <div className="flex questions-center gap-3">
         <button
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending}
@@ -83,40 +83,40 @@ function RuleList({ report }: { report: EvaluationReport }) {
   );
 }
 
-function Meta({ item }: { item: Item }) {
+function Meta({ question }: { question: Question }) {
   return (
     <dl className="mb-4 grid grid-cols-[8rem_1fr] gap-x-4 gap-y-1 text-sm">
       <dt className="text-gray-500">id</dt>
-      <dd className="font-mono text-xs">{item.id}</dd>
+      <dd className="font-mono text-xs">{question.id}</dd>
       <dt className="text-gray-500">type</dt>
-      <dd>{item.type}</dd>
+      <dd>{question.type}</dd>
       <dt className="text-gray-500">skill_tag</dt>
-      <dd>{item.skill_tag}</dd>
+      <dd>{question.skill_tag}</dd>
       <dt className="text-gray-500">prompt_version</dt>
-      <dd>{item.prompt_version}</dd>
+      <dd>{question.prompt_version}</dd>
       <dt className="text-gray-500">updated_at</dt>
-      <dd>{item.updated_at}</dd>
+      <dd>{question.updated_at}</dd>
     </dl>
   );
 }
 
-function EditForm({ item }: { item: Item }) {
+function EditForm({ question }: { question: Question }) {
   const queryClient = useQueryClient();
-  const [stem, setStem] = useState(item.stem);
+  const [stem, setStem] = useState(question.stem);
   const [optionsText, setOptionsText] = useState(
-    item.type === "multiple_choice" ? item.options.join("\n") : "",
+    question.type === "multiple_choice" ? question.options.join("\n") : "",
   );
   const [correctAnswer, setCorrectAnswer] = useState(
-    item.type === "multiple_choice" ? item.correct_answer : "",
+    question.type === "multiple_choice" ? question.correct_answer : "",
   );
   const [answer, setAnswer] = useState(
-    item.type === "short_answer" ? item.answer : "",
+    question.type === "short_answer" ? question.answer : "",
   );
 
   const mutation = useMutation({
     mutationFn: () => {
       const body: Record<string, unknown> = { stem };
-      if (item.type === "multiple_choice") {
+      if (question.type === "multiple_choice") {
         body.options = optionsText
           .split("\n")
           .map((line) => line.trim())
@@ -125,11 +125,11 @@ function EditForm({ item }: { item: Item }) {
       } else {
         body.answer = answer;
       }
-      return api.patchItem(item.id, body);
+      return api.patchQuestion(question.id, body);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["item", item.id] });
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["question", question.id] });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
   });
 
@@ -150,7 +150,7 @@ function EditForm({ item }: { item: Item }) {
         />
       </label>
 
-      {item.type === "multiple_choice" ? (
+      {question.type === "multiple_choice" ? (
         <>
           <label className="block">
             <span className="text-sm text-gray-600">Options (one per line)</span>

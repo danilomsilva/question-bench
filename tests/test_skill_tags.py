@@ -1,6 +1,6 @@
 """Tests for the skill-tag vocabulary."""
 
-from item_bench.skill_tags import ALLOWED_SKILL_TAGS
+from question_bench.skill_tags import ALLOWED_SKILL_TAGS
 
 
 def test_vocabulary_is_a_non_empty_frozenset_of_strings() -> None:

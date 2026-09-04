@@ -1,4 +1,4 @@
-"""Integration tests for MongoItemStore against a real MongoDB.
+"""Integration tests for MongoQuestionStore against a real MongoDB.
 
 Skipped automatically when no Mongo is reachable at ``MONGO_URL``
 (default ``mongodb://localhost:27017``). CI provides one as a service
@@ -6,19 +6,16 @@ container; locally, ``docker compose up -d mongo``.
 """
 
 from __future__ import annotations
-
 import os
 from collections.abc import AsyncIterator
-
 import pymongo
 import pytest
 import pytest_asyncio
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
-from item_bench.db import ensure_indexes
-from item_bench.eval import evaluate
-from item_bench.models import MultipleChoiceItem, ShortAnswerItem
-from item_bench.mongo_store import MongoItemStore
+from question_bench.db import ensure_indexes
+from question_bench.eval import evaluate
+from question_bench.models import MultipleChoiceQuestion, ShortAnswerQuestion
+from question_bench.mongo_store import MongoQuestionStore
 
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 
@@ -43,38 +40,38 @@ pytestmark = [
 @pytest_asyncio.fixture
 async def mongo_db() -> AsyncIterator[AsyncIOMotorDatabase]:
     client = AsyncIOMotorClient(MONGO_URL, tz_aware=True)
-    db = client["item_bench_test"]
-    for name in ("items", "evaluations"):
+    db = client["question_bench_test"]
+    for name in ("questions", "evaluations"):
         await db[name].delete_many({})
     yield db
-    await client.drop_database("item_bench_test")
+    await client.drop_database("question_bench_test")
     client.close()
 
 
 @pytest.fixture
-def store(mongo_db: AsyncIOMotorDatabase) -> MongoItemStore:
-    return MongoItemStore(mongo_db)
+def store(mongo_db: AsyncIOMotorDatabase) -> MongoQuestionStore:
+    return MongoQuestionStore(mongo_db)
 
 
 async def test_add_then_get(
-    store: MongoItemStore, valid_mc: MultipleChoiceItem
+    store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add(valid_mc)
 
     fetched = await store.get(valid_mc.id)
 
-    assert isinstance(fetched, MultipleChoiceItem)
+    assert isinstance(fetched, MultipleChoiceQuestion)
     assert fetched.stem == valid_mc.stem
     assert fetched.options == valid_mc.options
     assert fetched.created_at.tzinfo is not None
 
 
-async def test_get_missing_returns_none(store: MongoItemStore) -> None:
+async def test_get_missing_returns_none(store: MongoQuestionStore) -> None:
     assert await store.get("nope") is None
 
 
 async def test_round_trip_preserves_fields(
-    store: MongoItemStore, valid_mc: MultipleChoiceItem
+    store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add(valid_mc)
 
@@ -88,18 +85,18 @@ async def test_round_trip_preserves_fields(
 
 
 async def test_short_answer_round_trip(
-    store: MongoItemStore, valid_sa: ShortAnswerItem
+    store: MongoQuestionStore, valid_sa: ShortAnswerQuestion
 ) -> None:
     await store.add(valid_sa)
 
     fetched = await store.get(valid_sa.id)
 
-    assert isinstance(fetched, ShortAnswerItem)
+    assert isinstance(fetched, ShortAnswerQuestion)
     assert fetched.answer == valid_sa.answer
 
 
 async def test_list_filters_and_paginates(
-    store: MongoItemStore, valid_mc: MultipleChoiceItem
+    store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add(
         valid_mc.model_copy(update={"id": "mc-1", "skill_tag": "arithmetic"})
@@ -107,14 +104,14 @@ async def test_list_filters_and_paginates(
     await store.add(valid_mc.model_copy(update={"id": "mc-2", "skill_tag": "algebra"}))
     await store.add(valid_mc.model_copy(update={"id": "mc-3", "skill_tag": "algebra"}))
 
-    assert len(await store.list_items()) == 3
-    assert len(await store.list_items(skill_tag="algebra")) == 2
-    assert len(await store.list_items(limit=2)) == 2
-    assert len(await store.list_items(offset=2)) == 1
+    assert len(await store.list_questions()) == 3
+    assert len(await store.list_questions(skill_tag="algebra")) == 2
+    assert len(await store.list_questions(limit=2)) == 2
+    assert len(await store.list_questions(offset=2)) == 1
 
 
 async def test_replace_persists(
-    store: MongoItemStore, valid_mc: MultipleChoiceItem
+    store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add(valid_mc)
 
@@ -126,7 +123,7 @@ async def test_replace_persists(
 
 
 async def test_reports_add_and_list(
-    store: MongoItemStore, valid_mc: MultipleChoiceItem
+    store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add(valid_mc)
     await store.add_report(evaluate(valid_mc))
@@ -134,12 +131,12 @@ async def test_reports_add_and_list(
     reports = await store.list_reports(valid_mc.id)
 
     assert len(reports) == 1
-    assert reports[0].item_id == valid_mc.id
+    assert reports[0].question_id == valid_mc.id
     assert reports[0].score == 1.0
 
 
 async def test_pass_rate_by_prompt_version(
-    store: MongoItemStore, valid_mc: MultipleChoiceItem
+    store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add_report(evaluate(valid_mc))
     await store.add_report(evaluate(valid_mc.model_copy(update={"skill_tag": "nope"})))
@@ -157,6 +154,6 @@ async def test_ensure_indexes_is_idempotent(mongo_db: AsyncIOMotorDatabase) -> N
     await ensure_indexes(mongo_db)
     await ensure_indexes(mongo_db)  # second call must not raise
 
-    item_indexes = await mongo_db["items"].index_information()
-    indexed_fields = {spec["key"][0][0] for spec in item_indexes.values()}
+    question_indexes = await mongo_db["questions"].index_information()
+    indexed_fields = {spec["key"][0][0] for spec in question_indexes.values()}
     assert {"type", "skill_tag", "prompt_version", "created_at"} <= indexed_fields

@@ -11,14 +11,14 @@ export default function PassRateView() {
     <section>
       <h2 className="mb-1 text-lg font-semibold">Pass rate by prompt version</h2>
       <p className="mb-3 text-sm text-gray-500">
-        Every evaluation ever run, grouped by the prompt that produced the item.
+        Every evaluation ever run, grouped by the prompt that produced the question.
       </p>
 
       {isLoading && <p className="text-sm text-gray-500">Loading…</p>}
       {isError && <p className="text-sm text-red-600">{String(error)}</p>}
       {data?.length === 0 && (
         <p className="text-sm text-gray-500">
-          No evaluations yet — run a quality check on an item first.
+          No evaluations yet — run a quality check on a question first.
         </p>
       )}
 

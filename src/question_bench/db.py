@@ -4,29 +4,26 @@ The motor client is created once at startup and closed at shutdown. motor
 connects lazily, so building the client never fails on its own - the
 first real query is what needs Mongo to be reachable. When the client is
 present on ``app.state`` the dependency wiring hands routes a
-``MongoItemStore``; otherwise they get the in-memory store.
+``MongoQuestionStore``; otherwise they get the in-memory store.
 """
 
 from __future__ import annotations
-
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
-from item_bench.settings import get_settings
+from question_bench.settings import get_settings
 
 # Fields the app filters, groups or sorts on. `prompt_version` matters
 # most: pass-rate-by-prompt is the whole point of the eval scores.
-_ITEM_INDEXES = ("type", "skill_tag", "prompt_version", "created_at")
-_EVALUATION_INDEXES = ("item_id", "prompt_version", "evaluated_at")
+_QUESTION_INDEXES = ("type", "skill_tag", "prompt_version", "created_at")
+_EVALUATION_INDEXES = ("question_id", "prompt_version", "evaluated_at")
 
 
 async def ensure_indexes(db: AsyncIOMotorDatabase) -> None:
     """Idempotent; safe to call on every startup."""
-    for field in _ITEM_INDEXES:
-        await db["items"].create_index(field)
+    for field in _QUESTION_INDEXES:
+        await db["questions"].create_index(field)
     for field in _EVALUATION_INDEXES:
         await db["evaluations"].create_index(field)
 

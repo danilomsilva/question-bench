@@ -1,17 +1,18 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type ItemType } from "../api";
+import { api, type QuestionType } from "../api";
+import { QuestionTypeSelect, SkillTagSelect } from "../components/QuestionFilters";
 
 export default function GenerateView() {
   const queryClient = useQueryClient();
-  const [itemType, setItemType] = useState<ItemType>("multiple_choice");
+  const [questionType, setQuestionType] = useState<QuestionType>("multiple_choice");
   const [skillTag, setSkillTag] = useState("arithmetic");
   const [count, setCount] = useState(1);
 
   const mutation = useMutation({
     mutationFn: () =>
-      api.generate({ item_type: itemType, skill_tag: skillTag, count }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["items"] }),
+      api.generate({ question_type: questionType, skill_tag: skillTag, count }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
   });
 
   function onSubmit(event: FormEvent) {
@@ -21,25 +22,22 @@ export default function GenerateView() {
 
   return (
     <section>
-      <h2 className="mb-3 text-lg font-semibold">Generate items</h2>
+      <h2 className="mb-3 text-lg font-semibold">Generate questions</h2>
       <form onSubmit={onSubmit} className="space-y-3">
         <label className="block">
           <span className="text-sm text-gray-600">Type</span>
-          <select
-            value={itemType}
-            onChange={(e) => setItemType(e.target.value as ItemType)}
+          <QuestionTypeSelect
+            value={questionType}
+            onChange={(value) => value && setQuestionType(value)}
             className="mt-1 block w-full rounded border border-gray-300 p-2"
-          >
-            <option value="multiple_choice">multiple_choice</option>
-            <option value="short_answer">short_answer</option>
-          </select>
+          />
         </label>
 
         <label className="block">
           <span className="text-sm text-gray-600">Skill tag</span>
-          <input
+          <SkillTagSelect
             value={skillTag}
-            onChange={(e) => setSkillTag(e.target.value)}
+            onChange={setSkillTag}
             className="mt-1 block w-full rounded border border-gray-300 p-2"
           />
         </label>
@@ -70,7 +68,7 @@ export default function GenerateView() {
       )}
       {mutation.isSuccess && (
         <p className="mt-3 text-sm text-green-700">
-          Created {mutation.data.length} item(s) — see the Items tab.
+          Created {mutation.data.length} question(s) — see the Questions tab.
         </p>
       )}
     </section>

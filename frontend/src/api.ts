@@ -1,9 +1,19 @@
-// Types mirror the Pydantic models in src/item_bench/. Kept by hand -
+// Types mirror the Pydantic models in src/question_bench/. Kept by hand -
 // the surface is tiny and this repo isn't demonstrating codegen.
 
-export type ItemType = "multiple_choice" | "short_answer";
+export type QuestionType = "multiple_choice" | "short_answer";
 
-interface BaseItem {
+// Mirrors question_bench.skill_tags.ALLOWED_SKILL_TAGS.
+export const SKILL_TAGS = [
+  "arithmetic",
+  "fractions",
+  "algebra",
+  "geometry",
+  "measurement",
+  "data-and-statistics",
+] as const;
+
+interface BaseQuestion {
   id: string;
   stem: string;
   skill_tag: string;
@@ -12,18 +22,18 @@ interface BaseItem {
   updated_at: string;
 }
 
-export interface MultipleChoiceItem extends BaseItem {
+export interface MultipleChoiceQuestion extends BaseQuestion {
   type: "multiple_choice";
   options: string[];
   correct_answer: string;
 }
 
-export interface ShortAnswerItem extends BaseItem {
+export interface ShortAnswerQuestion extends BaseQuestion {
   type: "short_answer";
   answer: string;
 }
 
-export type Item = MultipleChoiceItem | ShortAnswerItem;
+export type Question = MultipleChoiceQuestion | ShortAnswerQuestion;
 
 export interface RuleResult {
   rule: string;
@@ -32,7 +42,7 @@ export interface RuleResult {
 }
 
 export interface EvaluationReport {
-  item_id: string;
+  question_id: string;
   prompt_version: string;
   results: RuleResult[];
   passed: boolean;
@@ -41,7 +51,7 @@ export interface EvaluationReport {
 }
 
 export interface GenerateRequest {
-  item_type: ItemType;
+  question_type: QuestionType;
   skill_tag: string;
   count: number;
 }
@@ -65,29 +75,29 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export interface ListParams {
-  item_type?: ItemType;
+  question_type?: QuestionType;
   skill_tag?: string;
 }
 
 export const api = {
   generate: (req: GenerateRequest) =>
-    http<Item[]>("/generate", { method: "POST", body: JSON.stringify(req) }),
+    http<Question[]>("/generate", { method: "POST", body: JSON.stringify(req) }),
 
-  listItems: (params: ListParams = {}) => {
+  listQuestions: (params: ListParams = {}) => {
     const query = new URLSearchParams();
-    if (params.item_type) query.set("item_type", params.item_type);
+    if (params.question_type) query.set("question_type", params.question_type);
     if (params.skill_tag) query.set("skill_tag", params.skill_tag);
     const qs = query.toString();
-    return http<Item[]>(`/items${qs ? `?${qs}` : ""}`);
+    return http<Question[]>(`/questions${qs ? `?${qs}` : ""}`);
   },
 
-  getItem: (id: string) => http<Item>(`/items/${id}`),
+  getQuestion: (id: string) => http<Question>(`/questions/${id}`),
 
-  patchItem: (id: string, body: Record<string, unknown>) =>
-    http<Item>(`/items/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  patchQuestion: (id: string, body: Record<string, unknown>) =>
+    http<Question>(`/questions/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
 
   evaluate: (id: string) =>
-    http<EvaluationReport>(`/items/${id}/evaluate`, { method: "POST" }),
+    http<EvaluationReport>(`/questions/${id}/evaluate`, { method: "POST" }),
 
   passRate: () => http<PromptVersionStats[]>("/stats/pass-rate"),
 };

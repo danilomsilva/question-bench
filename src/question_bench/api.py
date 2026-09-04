@@ -6,20 +6,17 @@ the harness, and shape the response. All logic lives in ``models``,
 """
 
 from __future__ import annotations
-
 from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Annotated, Any, Literal
-
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field, ValidationError
-
-from item_bench.db import lifespan
-from item_bench.eval import EvaluationReport, PromptVersionStats, evaluate
-from item_bench.llm import GenerationError, ItemGenerator, StubItemGenerator
-from item_bench.models import Item, ItemAdapter
-from item_bench.settings import Settings, get_settings
-from item_bench.store import InMemoryItemStore, ItemStore
+from question_bench.db import lifespan
+from question_bench.eval import EvaluationReport, PromptVersionStats, evaluate
+from question_bench.llm import GenerationError, QuestionGenerator, StubQuestionGenerator
+from question_bench.models import Question, QuestionAdapter
+from question_bench.settings import Settings, get_settings
+from question_bench.store import InMemoryQuestionStore, QuestionStore
 
 # Fields the client may not change via PATCH: identity, kind, and
 # provenance are set once at creation.
@@ -27,18 +24,18 @@ _PROTECTED_FIELDS = {"id", "type", "created_at", "prompt_version"}
 
 
 class GenerateRequest(BaseModel):
-    item_type: Literal["multiple_choice", "short_answer"]
+    question_type: Literal["multiple_choice", "short_answer"]
     skill_tag: str = Field(min_length=1)
     count: int = Field(default=1, ge=1, le=10)
 
 
 # --- dependency wiring --------------------------------------------------------
 
-_memory_store = InMemoryItemStore()
-_generator = StubItemGenerator()
+_memory_store = InMemoryQuestionStore()
+_generator = StubQuestionGenerator()
 
 
-def get_store(request: Request) -> ItemStore:
+def get_store(request: Request) -> QuestionStore:
     """Mongo-backed when the lifespan connected a client, else in-memory.
 
     Unit tests either skip the lifespan (so they get the in-memory store)
@@ -46,30 +43,30 @@ def get_store(request: Request) -> ItemStore:
     """
     mongo_db = getattr(request.app.state, "mongo_db", None)
     if mongo_db is not None:
-        from item_bench.mongo_store import MongoItemStore
+        from question_bench.mongo_store import MongoQuestionStore
 
-        return MongoItemStore(mongo_db)
+        return MongoQuestionStore(mongo_db)
     return _memory_store
 
 
 @lru_cache
-def _gemini_generator(api_key: str) -> ItemGenerator:
-    from item_bench.llm import GeminiItemGenerator
+def _gemini_generator(api_key: str) -> QuestionGenerator:
+    from question_bench.llm import GeminiQuestionGenerator
 
-    return GeminiItemGenerator(api_key)
+    return GeminiQuestionGenerator(api_key)
 
 
-def get_generator() -> ItemGenerator:
+def get_generator() -> QuestionGenerator:
     """Gemini when a key is configured, the deterministic stub otherwise."""
     api_key = get_settings().gemini_api_key
     return _gemini_generator(api_key) if api_key else _generator
 
 
-StoreDep = Annotated[ItemStore, Depends(get_store)]
-GeneratorDep = Annotated[ItemGenerator, Depends(get_generator)]
+StoreDep = Annotated[QuestionStore, Depends(get_store)]
+GeneratorDep = Annotated[QuestionGenerator, Depends(get_generator)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 
-app = FastAPI(title="item-bench", lifespan=lifespan)
+app = FastAPI(title="question-bench", lifespan=lifespan)
 
 
 @app.get("/health")
@@ -77,16 +74,18 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/generate", response_model=list[Item], status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/generate", response_model=list[Question], status_code=status.HTTP_201_CREATED
+)
 async def generate(
     request: GenerateRequest,
     store: StoreDep,
     generator: GeneratorDep,
     settings: SettingsDep,
-) -> list[Item]:
+) -> list[Question]:
     try:
-        items = generator.generate(
-            item_type=request.item_type,
+        questions = generator.generate(
+            question_type=request.question_type,
             skill_tag=request.skill_tag,
             count=request.count,
             prompt_version=settings.prompt_version,
@@ -94,41 +93,43 @@ async def generate(
     except GenerationError as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"item generation failed: {exc}",
+            detail=f"question generation failed: {exc}",
         ) from exc
-    return [await store.add(item) for item in items]
+    return [await store.add(question) for question in questions]
 
 
-@app.get("/items", response_model=list[Item])
-async def list_items(
+@app.get("/questions", response_model=list[Question])
+async def list_questions(
     store: StoreDep,
-    item_type: str | None = None,
+    question_type: str | None = None,
     skill_tag: str | None = None,
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
-) -> list[Item]:
-    return await store.list_items(
-        item_type=item_type, skill_tag=skill_tag, limit=limit, offset=offset
+) -> list[Question]:
+    return await store.list_questions(
+        question_type=question_type, skill_tag=skill_tag, limit=limit, offset=offset
     )
 
 
-@app.get("/items/{item_id}", response_model=Item)
-async def get_item(item_id: str, store: StoreDep) -> Item:
-    item = await store.get(item_id)
-    if item is None:
+async def _get_or_404(store: StoreDep, question_id: str) -> Question:
+    question = await store.get(question_id)
+    if question is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="question not found"
         )
-    return item
+    return question
 
 
-@app.patch("/items/{item_id}", response_model=Item)
-async def patch_item(item_id: str, body: dict[str, Any], store: StoreDep) -> Item:
-    item = await store.get(item_id)
-    if item is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
-        )
+@app.get("/questions/{question_id}", response_model=Question)
+async def get_question(question_id: str, store: StoreDep) -> Question:
+    return await _get_or_404(store, question_id)
+
+
+@app.patch("/questions/{question_id}", response_model=Question)
+async def patch_question(
+    question_id: str, body: dict[str, Any], store: StoreDep
+) -> Question:
+    question = await _get_or_404(store, question_id)
 
     protected = _PROTECTED_FIELDS & body.keys()
     if protected:
@@ -137,9 +138,9 @@ async def patch_item(item_id: str, body: dict[str, Any], store: StoreDep) -> Ite
             detail=f"these fields cannot be patched: {sorted(protected)}",
         )
 
-    merged = {**item.model_dump(), **body, "updated_at": datetime.now(UTC)}
+    merged = {**question.model_dump(), **body, "updated_at": datetime.now(UTC)}
     try:
-        updated = ItemAdapter.validate_python(merged)
+        updated = QuestionAdapter.validate_python(merged)
     except ValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=exc.errors()
@@ -147,14 +148,10 @@ async def patch_item(item_id: str, body: dict[str, Any], store: StoreDep) -> Ite
     return await store.replace(updated)
 
 
-@app.post("/items/{item_id}/evaluate", response_model=EvaluationReport)
-async def evaluate_item(item_id: str, store: StoreDep) -> EvaluationReport:
-    item = await store.get(item_id)
-    if item is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="item not found"
-        )
-    return await store.add_report(evaluate(item))
+@app.post("/questions/{question_id}/evaluate", response_model=EvaluationReport)
+async def evaluate_question(question_id: str, store: StoreDep) -> EvaluationReport:
+    question = await _get_or_404(store, question_id)
+    return await store.add_report(evaluate(question))
 
 
 # Not one of the five endpoints in the brief, but "prompt changes show as

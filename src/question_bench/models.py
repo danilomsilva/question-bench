@@ -1,20 +1,18 @@
-"""Pydantic models for assessment items.
+"""Pydantic models for assessment questions.
 
-Items are a discriminated union of concrete types (added in 2c/2d) that
-share the fields defined here on ``ItemBase``.
+Questions are a discriminated union of concrete types (added in 2c/2d) that
+share the fields defined here on ``QuestionBase``.
 """
 
 from __future__ import annotations
-
 import uuid
 from datetime import UTC, datetime
 from typing import Annotated, Literal
-
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 
-class ItemBase(BaseModel):
-    """Fields common to every item type.
+class QuestionBase(BaseModel):
+    """Fields common to every question type.
 
     ``extra="forbid"`` so unexpected keys (e.g. from LLM output drift)
     raise a validation error instead of being silently ignored.
@@ -30,7 +28,7 @@ class ItemBase(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
-class MultipleChoiceItem(ItemBase):
+class MultipleChoiceQuestion(QuestionBase):
     """A multiple-choice question.
 
     Shape only: 2+ options and a non-empty ``correct_answer``. Whether
@@ -43,11 +41,11 @@ class MultipleChoiceItem(ItemBase):
     correct_answer: str = Field(min_length=1)
 
 
-class ShortAnswerItem(ItemBase):
+class ShortAnswerQuestion(QuestionBase):
     """A short-answer question with a single expected answer.
 
     Answer-tolerance for grading student responses is out of scope; the
-    item just carries the answer. "Stem doesn't contain the answer
+    question just carries the answer. "Stem doesn't contain the answer
     verbatim" is checked by the eval harness, not here.
     """
 
@@ -55,14 +53,14 @@ class ShortAnswerItem(ItemBase):
     answer: str = Field(min_length=1)
 
 
-# Any item. Pydantic routes a raw dict to the right model by its "type"
+# Any question. Pydantic routes a raw dict to the right model by its "type"
 # field; a missing or unknown "type" is a single clear validation error.
-Item = Annotated[
-    MultipleChoiceItem | ShortAnswerItem,
+Question = Annotated[
+    MultipleChoiceQuestion | ShortAnswerQuestion,
     Field(discriminator="type"),
 ]
 
 # A bare union has no .model_validate(); TypeAdapter gives us one.
 # Callers parse untrusted data (DB docs, LLM output) via
-# ItemAdapter.validate_python(...).
-ItemAdapter = TypeAdapter(Item)
+# QuestionAdapter.validate_python(...).
+QuestionAdapter = TypeAdapter(Question)

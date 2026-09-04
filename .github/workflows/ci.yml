@@ -80,8 +80,8 @@ jobs:
         run: |
           curl -sf -X POST http://localhost:8000/generate \
             -H 'content-type: application/json' \
-            -d '{"item_type":"multiple_choice","skill_tag":"arithmetic","count":2}'
-          count=$(curl -sf http://localhost:8000/items \
+            -d '{"question_type":"multiple_choice","skill_tag":"arithmetic","count":2}'
+          count=$(curl -sf http://localhost:8000/questions \
             | python3 -c 'import sys, json; print(len(json.load(sys.stdin)))')
           test "$count" = "2"
 

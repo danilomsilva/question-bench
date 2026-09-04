@@ -1,4 +1,4 @@
-"""The controlled vocabulary of skill tags an item may carry.
+"""The controlled vocabulary of skill tags a question may carry.
 
 Used by the eval harness (rule: ``skill_tag`` present and in the allowed
 list). Kept as a plain in-code constant - there is no need for config or

@@ -1,6 +1,6 @@
-# item-bench
+# question-bench
 
-LLM assessment-item generator with a deterministic quality-scoring harness.
+LLM assessment-question generator with a deterministic quality-scoring harness.
 Portfolio project for Senior Software Engineer interviews.
 
 ## Purpose
@@ -20,16 +20,16 @@ then checks their quality automatically instead of by eye.
 2. **Review the drafts.** The generated questions appear in a list. The
    user opens any one to see the full question text, the answer options,
    and which option is marked correct.
-   *`GET /items`, `GET /items/{id}` — React list and detail views, data
+   *`GET /questions`, `GET /questions/{id}` — React list and detail views, data
    fetched and cached with TanStack Query.*
 3. **Edit if needed.** The user can fix wording, swap an option, or
    change the correct answer directly in the app.
-   *`PATCH /items/{id}` — partial update, re-validated by Pydantic.*
+   *`PATCH /questions/{id}` — partial update, re-validated by Pydantic.*
 4. **Run the quality check.** One click runs a fixed set of rules against
    the question — not a second AI opinion, but concrete checks like
    "exactly one correct answer" and "no repeated options". The result is
    a pass/fail for each rule plus an overall score.
-   *`POST /items/{id}/evaluate` — deterministic rule harness in plain
+   *`POST /questions/{id}/evaluate` — deterministic rule harness in plain
    Python, covered by pytest; returns per-rule pass/fail and a score.*
 5. **See whether the prompt is improving.** Every score is filed under the
    prompt version that produced it, so changing the generation prompt
@@ -42,15 +42,15 @@ re-check every draft for the same recurring mistakes.
 
 ## Stack
 - Backend: Python 3.12, FastAPI, Pydantic
-- DB: MongoDB (document store; items have heterogeneous shapes per type)
+- DB: MongoDB (document store; questions have heterogeneous shapes per type)
 - LLM: Gemini via Google AI Studio API
 - Frontend: React + TypeScript + Tailwind + TanStack Query
 - Tests: pytest. CI: GitHub Actions (ruff + pytest). Docker + compose.
 
 ## Scope
-Two item types only: multiple_choice, short_answer.
-Endpoints: POST /generate, GET /items, GET /items/{id},
-PATCH /items/{id}, POST /items/{id}/evaluate
+Two question types only: multiple_choice, short_answer.
+Endpoints: POST /generate, GET /questions, GET /questions/{id},
+PATCH /questions/{id}, POST /questions/{id}/evaluate
 
 ## Eval rules (deterministic, not LLM-as-judge)
 - exactly one correct answer
@@ -61,7 +61,7 @@ PATCH /items/{id}, POST /items/{id}/evaluate
 Scores stored against prompt_version so prompt changes show as pass-rate deltas.
 
 ## Out of scope
-Auth, deployment, RAG, streaming, multi-user, extra item types.
+Auth, deployment, RAG, streaming, multi-user, extra question types.
 
 ## Working rules
 - Write eval-rule tests BEFORE the implementation.
@@ -128,15 +128,17 @@ Write it, one line on what it does, move on.
 - Small, frequent commits. Every commit message MUST start with a
   semantic prefix (Conventional Commits): `feat:`, `fix:`, `docs:`,
   `test:`, `refactor:`, `chore:`, `ci:`, `build:`, `perf:`, `style:`.
-  Example: `feat: add short_answer item model`.
+  Example: `feat: add short_answer question model`.
 - If I approve something I clearly haven't understood, say so and
   re-explain rather than proceeding.
 - Don't optimise ahead of need. If you're adding something for
   robustness I didn't ask for, flag it as optional first.
-- Prefer repetition over abstraction. Don't extract a shared helper,
-  type alias, or constant until the duplication genuinely hurts. Inline
-  small things (e.g. `default_factory=lambda: ...`) rather than naming
-  them.
+- Extract a shared helper, component, or constant wherever real reuse is
+  plausible — two call sites doing the same lookup, two views rendering
+  the same control — rather than waiting for the duplication to hurt.
+  Still inline genuinely trivial one-offs (e.g. `default_factory=lambda:
+  ...`); the bar is "would a second caller want this," not "has this
+  already been copy-pasted."
 
 ### 6. Progress tracking
 - `docs/implementation-plan.md` is the single source of truth for build

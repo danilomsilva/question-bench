@@ -1,8 +1,9 @@
 [project]
-name = "item-bench"
+name = "question-bench"
 version = "0.1.0"
-description = "LLM assessment-item generator with a deterministic quality-scoring harness"
+description = "LLM assessment-question generator with a deterministic quality-scoring harness"
 readme = "README.md"
+license = "MIT"
 authors = [
     { name = "Danilo M. Silva", email = "68205719+danilomsilva@users.noreply.github.com" }
 ]
@@ -33,6 +34,9 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+no-lines-before = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

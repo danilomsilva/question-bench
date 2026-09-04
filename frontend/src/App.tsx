@@ -1,15 +1,15 @@
 import { useState } from "react";
 import GenerateView from "./views/GenerateView";
-import ItemsView from "./views/ItemsView";
-import ItemDetailView from "./views/ItemDetailView";
+import QuestionsView from "./views/QuestionsView";
+import QuestionDetailView from "./views/QuestionDetailView";
 import PassRateView from "./views/PassRateView";
 
-type Tab = "generate" | "items" | "passrate";
+type Tab = "generate" | "questions" | "passrate";
 
-const TABS: Tab[] = ["generate", "items", "passrate"];
+const TABS: Tab[] = ["generate", "questions", "passrate"];
 const LABELS: Record<Tab, string> = {
   generate: "generate",
-  items: "items",
+  questions: "questions",
   passrate: "pass rates",
 };
 
@@ -25,7 +25,7 @@ export default function App() {
   return (
     <div className="mx-auto max-w-4xl p-6">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold">item-bench</h1>
+        <h1 className="text-2xl font-bold">question-bench</h1>
         <nav className="mt-3 flex gap-2">
           {TABS.map((t) => (
             <button
@@ -43,11 +43,11 @@ export default function App() {
 
       {tab === "generate" && <GenerateView />}
 
-      {tab === "items" && selectedId === null && (
-        <ItemsView onSelect={setSelectedId} />
+      {tab === "questions" && selectedId === null && (
+        <QuestionsView onSelect={setSelectedId} />
       )}
-      {tab === "items" && selectedId !== null && (
-        <ItemDetailView id={selectedId} onBack={() => setSelectedId(null)} />
+      {tab === "questions" && selectedId !== null && (
+        <QuestionDetailView id={selectedId} onBack={() => setSelectedId(null)} />
       )}
 
       {tab === "passrate" && <PassRateView />}

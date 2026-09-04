@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/generate": "http://localhost:8000",
-      "/items": "http://localhost:8000",
+      "/questions": "http://localhost:8000",
       "/stats": "http://localhost:8000",
       "/health": "http://localhost:8000",
     },
