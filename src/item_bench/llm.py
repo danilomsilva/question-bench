@@ -104,7 +104,7 @@ def _entries_to_items(
 class GeminiItemGenerator:
     """Real generator, used when a Gemini API key is configured."""
 
-    def __init__(self, api_key: str, model: str = "gemini-2.0-flash") -> None:
+    def __init__(self, api_key: str, model: str = "gemini-3.6-flash") -> None:
         from google import genai
 
         self._client = genai.Client(api_key=api_key)
