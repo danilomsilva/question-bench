@@ -234,19 +234,19 @@ until it returned.
 
 ```mermaid
 sequenceDiagram
-    participant Loop as Event loop
+    participant Runtime as Event loop
     participant R1 as Request A
     participant R2 as Request B
     participant Mongo as MongoDB
 
     R1->>Mongo: await find_one(...)
-    Note over R1,Loop: Request A is paused here
-    Loop->>R2: run Request B while A waits
+    Note over R1,Runtime: Request A is paused here
+    Runtime->>R2: run Request B while A waits
     R2->>Mongo: await insert_one(...)
     Mongo-->>R1: result ready
-    Loop->>R1: resume Request A
+    Runtime->>R1: resume Request A
     Mongo-->>R2: result ready
-    Loop->>R2: resume Request B
+    Runtime->>R2: resume Request B
 ```
 
 `InMemoryQuestionStore`'s methods are also declared `async`, even though
