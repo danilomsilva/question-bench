@@ -147,8 +147,7 @@ is just a shorthand for that.
 
 ```python
 @app.get("/questions/{question_id}", response_model=Question)
-async def get_question(question_id: str, store: StoreDep) -> Question:
-    ...
+async def get_question(question_id: str, store: StoreDep) -> Question: ...
 ```
 
 `@app.get(...)` doesn't change what `get_question` does when you call it
@@ -159,8 +158,7 @@ into the web framework.
 
 ```python
 @lru_cache
-def _gemini_generator(api_key: str) -> QuestionGenerator:
-    ...
+def _gemini_generator(api_key: str) -> QuestionGenerator: ...
 ```
 
 `@lru_cache` is a general-purpose decorator from Python's standard
@@ -297,6 +295,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     gemini_api_key: str = ""
     mongo_url: str = "mongodb://localhost:27017"
+
 
 @lru_cache
 def get_settings() -> Settings:
