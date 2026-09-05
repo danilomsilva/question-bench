@@ -25,7 +25,7 @@ class QuestionStore(Protocol):
         self,
         *,
         question_type: str | None = None,
-        skill_tag: str | None = None,
+        topic: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> list[Question]: ...
@@ -57,15 +57,15 @@ class InMemoryQuestionStore:
         self,
         *,
         question_type: str | None = None,
-        skill_tag: str | None = None,
+        topic: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> list[Question]:
         questions = list(self._questions.values())
         if question_type is not None:
             questions = [i for i in questions if i.type == question_type]
-        if skill_tag is not None:
-            questions = [i for i in questions if i.skill_tag == skill_tag]
+        if topic is not None:
+            questions = [i for i in questions if i.topic == topic]
         return questions[offset : offset + limit]
 
     async def replace(self, question: Question) -> Question:

@@ -90,8 +90,8 @@ function Meta({ question }: { question: Question }) {
       <dd className="font-mono text-xs">{question.id}</dd>
       <dt className="text-gray-500">type</dt>
       <dd>{question.type}</dd>
-      <dt className="text-gray-500">skill_tag</dt>
-      <dd>{question.skill_tag}</dd>
+      <dt className="text-gray-500">topic</dt>
+      <dd>{question.topic}</dd>
       <dt className="text-gray-500">prompt_version</dt>
       <dd>{question.prompt_version}</dd>
       <dt className="text-gray-500">updated_at</dt>

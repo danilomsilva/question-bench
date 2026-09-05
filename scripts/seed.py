@@ -3,7 +3,7 @@
     uv run python scripts/seed.py                     # http://localhost:8000
     API_BASE=http://host:8000 uv run python scripts/seed.py
 
-Generates a handful of questions across skill tags and evaluates each, so the
+Generates a handful of questions across topics and evaluates each, so the
 Questions and Pass-rate views have something to show.
 """
 
@@ -26,12 +26,12 @@ def main() -> int:
         client.get("/health").raise_for_status()
 
         created: list[dict] = []
-        for question_type, skill_tag, count in PLAN:
+        for question_type, topic, count in PLAN:
             response = client.post(
                 "/generate",
                 json={
                     "question_type": question_type,
-                    "skill_tag": skill_tag,
+                    "topic": topic,
                     "count": count,
                 },
             )

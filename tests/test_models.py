@@ -11,7 +11,7 @@ from question_bench.models import (
 
 
 def _valid_kwargs() -> dict[str, str]:
-    return {"stem": "What is 2 + 2?", "skill_tag": "arithmetic", "prompt_version": "v1"}
+    return {"stem": "What is 2 + 2?", "topic": "arithmetic", "prompt_version": "v1"}
 
 
 def test_defaults_are_populated() -> None:

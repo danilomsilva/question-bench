@@ -12,7 +12,7 @@ from question_bench.models import MultipleChoiceQuestion, ShortAnswerQuestion
 def valid_mc() -> MultipleChoiceQuestion:
     return MultipleChoiceQuestion(
         stem="Which number is prime?",
-        skill_tag="arithmetic",
+        topic="arithmetic",
         prompt_version="v1",
         options=["4", "6", "7", "9"],
         correct_answer="7",
@@ -23,7 +23,7 @@ def valid_mc() -> MultipleChoiceQuestion:
 def valid_sa() -> ShortAnswerQuestion:
     return ShortAnswerQuestion(
         stem="What is ten divided by two?",
-        skill_tag="arithmetic",
+        topic="arithmetic",
         prompt_version="v1",
         answer="5",
     )

@@ -1,17 +1,17 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type QuestionType } from "../api";
-import { QuestionTypeSelect, SkillTagSelect } from "../components/QuestionFilters";
+import { QuestionTypeSelect, TopicSelect } from "../components/QuestionFilters";
 
 export default function GenerateView() {
   const queryClient = useQueryClient();
   const [questionType, setQuestionType] = useState<QuestionType>("multiple_choice");
-  const [skillTag, setSkillTag] = useState("arithmetic");
+  const [topic, setTopic] = useState("arithmetic");
   const [count, setCount] = useState(1);
 
   const mutation = useMutation({
     mutationFn: () =>
-      api.generate({ question_type: questionType, skill_tag: skillTag, count }),
+      api.generate({ question_type: questionType, topic, count }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
   });
 
@@ -34,10 +34,10 @@ export default function GenerateView() {
         </label>
 
         <label className="block">
-          <span className="text-sm text-gray-600">Skill tag</span>
-          <SkillTagSelect
-            value={skillTag}
-            onChange={setSkillTag}
+          <span className="text-sm text-gray-600">Topic</span>
+          <TopicSelect
+            value={topic}
+            onChange={setTopic}
             className="mt-1 block w-full rounded border border-gray-300 p-2"
           />
         </label>

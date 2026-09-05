@@ -3,8 +3,8 @@
 
 export type QuestionType = "multiple_choice" | "short_answer";
 
-// Mirrors question_bench.skill_tags.ALLOWED_SKILL_TAGS.
-export const SKILL_TAGS = [
+// Mirrors question_bench.topics.ALLOWED_TOPICS.
+export const TOPICS = [
   "arithmetic",
   "fractions",
   "algebra",
@@ -16,7 +16,7 @@ export const SKILL_TAGS = [
 interface BaseQuestion {
   id: string;
   stem: string;
-  skill_tag: string;
+  topic: string;
   prompt_version: string;
   created_at: string;
   updated_at: string;
@@ -52,7 +52,7 @@ export interface EvaluationReport {
 
 export interface GenerateRequest {
   question_type: QuestionType;
-  skill_tag: string;
+  topic: string;
   count: number;
 }
 
@@ -76,7 +76,7 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 
 export interface ListParams {
   question_type?: QuestionType;
-  skill_tag?: string;
+  topic?: string;
 }
 
 export const api = {
@@ -86,7 +86,7 @@ export const api = {
   listQuestions: (params: ListParams = {}) => {
     const query = new URLSearchParams();
     if (params.question_type) query.set("question_type", params.question_type);
-    if (params.skill_tag) query.set("skill_tag", params.skill_tag);
+    if (params.topic) query.set("topic", params.topic);
     const qs = query.toString();
     return http<Question[]>(`/questions${qs ? `?${qs}` : ""}`);
   },

@@ -98,14 +98,12 @@ async def test_short_answer_round_trip(
 async def test_list_filters_and_paginates(
     store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
-    await store.add(
-        valid_mc.model_copy(update={"id": "mc-1", "skill_tag": "arithmetic"})
-    )
-    await store.add(valid_mc.model_copy(update={"id": "mc-2", "skill_tag": "algebra"}))
-    await store.add(valid_mc.model_copy(update={"id": "mc-3", "skill_tag": "algebra"}))
+    await store.add(valid_mc.model_copy(update={"id": "mc-1", "topic": "arithmetic"}))
+    await store.add(valid_mc.model_copy(update={"id": "mc-2", "topic": "algebra"}))
+    await store.add(valid_mc.model_copy(update={"id": "mc-3", "topic": "algebra"}))
 
     assert len(await store.list_questions()) == 3
-    assert len(await store.list_questions(skill_tag="algebra")) == 2
+    assert len(await store.list_questions(topic="algebra")) == 2
     assert len(await store.list_questions(limit=2)) == 2
     assert len(await store.list_questions(offset=2)) == 1
 
@@ -139,7 +137,7 @@ async def test_pass_rate_by_prompt_version(
     store: MongoQuestionStore, valid_mc: MultipleChoiceQuestion
 ) -> None:
     await store.add_report(evaluate(valid_mc))
-    await store.add_report(evaluate(valid_mc.model_copy(update={"skill_tag": "nope"})))
+    await store.add_report(evaluate(valid_mc.model_copy(update={"topic": "nope"})))
 
     stats = await store.pass_rate_by_prompt_version()
 
@@ -156,4 +154,4 @@ async def test_ensure_indexes_is_idempotent(mongo_db: AsyncIOMotorDatabase) -> N
 
     question_indexes = await mongo_db["questions"].index_information()
     indexed_fields = {spec["key"][0][0] for spec in question_indexes.values()}
-    assert {"type", "skill_tag", "prompt_version", "created_at"} <= indexed_fields
+    assert {"type", "topic", "prompt_version", "created_at"} <= indexed_fields

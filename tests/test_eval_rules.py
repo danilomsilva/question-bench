@@ -9,8 +9,8 @@ from question_bench.eval import (
     evaluate,
     exactly_one_correct_answer,
     no_duplicate_options,
-    skill_tag_allowed,
     stem_excludes_answer,
+    topic_allowed,
 )
 from question_bench.models import MultipleChoiceQuestion, ShortAnswerQuestion
 
@@ -121,22 +121,22 @@ def test_stem_excludes_answer_fails_when_sa_stem_leaks_answer(
     assert not stem_excludes_answer(broken).passed
 
 
-# --- skill_tag_allowed --------------------------------------------------------
+# --- topic_allowed --------------------------------------------------------
 
 
-def test_skill_tag_allowed_passes_for_valid_questions(
+def test_topic_allowed_passes_for_valid_questions(
     valid_mc: MultipleChoiceQuestion, valid_sa: ShortAnswerQuestion
 ) -> None:
-    assert skill_tag_allowed(valid_mc).passed
-    assert skill_tag_allowed(valid_sa).passed
+    assert topic_allowed(valid_mc).passed
+    assert topic_allowed(valid_sa).passed
 
 
-def test_skill_tag_allowed_fails_for_unknown_tag(
+def test_topic_allowed_fails_for_unknown_tag(
     valid_mc: MultipleChoiceQuestion,
 ) -> None:
-    broken = valid_mc.model_copy(update={"skill_tag": "underwater-basket-weaving"})
+    broken = valid_mc.model_copy(update={"topic": "underwater-basket-weaving"})
 
-    result = skill_tag_allowed(broken)
+    result = topic_allowed(broken)
 
     assert not result.passed
     assert "underwater-basket-weaving" in result.detail
@@ -163,7 +163,7 @@ def test_evaluate_short_answer_runs_only_two_rules(
 
     assert {r.rule for r in report.results} == {
         "stem_excludes_answer",
-        "skill_tag_allowed",
+        "topic_allowed",
     }
     assert report.passed
     assert report.score == 1.0
@@ -172,14 +172,14 @@ def test_evaluate_short_answer_runs_only_two_rules(
 def test_evaluate_reports_partial_score_and_failure(
     valid_mc: MultipleChoiceQuestion,
 ) -> None:
-    broken = valid_mc.model_copy(update={"skill_tag": "nope"})
+    broken = valid_mc.model_copy(update={"topic": "nope"})
 
     report = evaluate(broken)
 
     assert not report.passed
     assert report.score == 0.8
     failed = [r for r in report.results if not r.passed]
-    assert [r.rule for r in failed] == ["skill_tag_allowed"]
+    assert [r.rule for r in failed] == ["topic_allowed"]
 
 
 def test_evaluation_report_serialises(valid_mc: MultipleChoiceQuestion) -> None:

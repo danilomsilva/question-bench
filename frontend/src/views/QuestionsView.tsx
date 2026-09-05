@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, type QuestionType, type ListParams } from "../api";
-import { QuestionTypeSelect, SkillTagSelect } from "../components/QuestionFilters";
+import { QuestionTypeSelect, TopicSelect } from "../components/QuestionFilters";
 
 export default function QuestionsView({
   onSelect,
@@ -9,11 +9,11 @@ export default function QuestionsView({
   onSelect: (id: string) => void;
 }) {
   const [questionType, setQuestionType] = useState<QuestionType | "">("");
-  const [skillTag, setSkillTag] = useState("");
+  const [topic, setTopic] = useState("");
 
   const filters: ListParams = {};
   if (questionType) filters.question_type = questionType;
-  if (skillTag) filters.skill_tag = skillTag;
+  if (topic) filters.topic = topic;
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["questions", filters],
@@ -26,7 +26,7 @@ export default function QuestionsView({
 
       <div className="mb-3 flex gap-2">
         <QuestionTypeSelect value={questionType} onChange={setQuestionType} allowAny />
-        <SkillTagSelect value={skillTag} onChange={setSkillTag} allowAny />
+        <TopicSelect value={topic} onChange={setTopic} allowAny />
       </div>
 
       {isLoading && <p className="text-sm text-gray-500">Loading…</p>}
@@ -41,7 +41,7 @@ export default function QuestionsView({
             <tr>
               <th className="py-2 font-medium">Stem</th>
               <th className="font-medium">Type</th>
-              <th className="font-medium">Skill</th>
+              <th className="font-medium">Topic</th>
               <th className="font-medium">Prompt</th>
             </tr>
           </thead>
@@ -54,7 +54,7 @@ export default function QuestionsView({
               >
                 <td className="py-2 pr-4">{question.stem}</td>
                 <td className="pr-4">{question.type}</td>
-                <td className="pr-4">{question.skill_tag}</td>
+                <td className="pr-4">{question.topic}</td>
                 <td>{question.prompt_version}</td>
               </tr>
             ))}

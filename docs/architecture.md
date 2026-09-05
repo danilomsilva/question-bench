@@ -69,7 +69,7 @@ sequenceDiagram
     participant G as Gemini
     participant D as MongoDB
 
-    U->>F: picks question type + skill,<br/>clicks "Generate"
+    U->>F: picks question type + topic,<br/>clicks "Generate"
     F->>A: POST /generate
     A->>G: "write N questions about X"
     G-->>A: raw JSON text
@@ -107,7 +107,7 @@ sequenceDiagram
     participant D as MongoDB
 
     U->>F: opens the "questions" tab
-    F->>A: GET /questions?question_type=...&skill_tag=...
+    F->>A: GET /questions?question_type=...&topic=...
     A->>D: find matching documents
     D-->>A: list of documents
     A-->>F: list of questions
@@ -121,7 +121,7 @@ sequenceDiagram
     F-->>U: renders stem, options, correct answer
 ```
 
-Filtering by type or skill tag happens in the database query, not by
+Filtering by type or topic happens in the database query, not by
 fetching everything and filtering in the backend — that's the difference
 between asking the database "give me only the arithmetic ones" and
 asking for everything and throwing away what you don't want.
@@ -162,11 +162,11 @@ flowchart TD
     MC1 --> MC2[No two options are identical]
     MC2 --> MC3[Every wrong option's length is<br/>within ±30% of the right answer's]
     MC3 --> MC4[The question text doesn't<br/>contain the answer word-for-word]
-    MC4 --> MC5[The skill tag is one of the<br/>allowed tags]
+    MC4 --> MC5[The topic is one of the<br/>allowed topics]
     MC5 --> Score
 
     Type -->|short_answer| SA1[The question text doesn't<br/>contain the answer word-for-word]
-    SA1 --> SA2[The skill tag is one of the<br/>allowed tags]
+    SA1 --> SA2[The topic is one of the<br/>allowed topics]
     SA2 --> Score
 
     Score[score = rules passed / rules run] --> Save[save the report to MongoDB]
@@ -207,7 +207,7 @@ classDiagram
     class QuestionBase {
         id: string
         stem: string
-        skill_tag: string
+        topic: string
         prompt_version: string
         created_at: datetime
         updated_at: datetime

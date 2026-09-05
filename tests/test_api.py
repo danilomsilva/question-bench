@@ -24,7 +24,7 @@ def client() -> Iterator[TestClient]:
 
 
 def _generate(client: TestClient, **body: object) -> list[dict]:
-    payload = {"question_type": "multiple_choice", "skill_tag": "arithmetic", **body}
+    payload = {"question_type": "multiple_choice", "topic": "arithmetic", **body}
     response = client.post("/generate", json=payload)
     assert response.status_code == 201, response.text
     return response.json()
@@ -53,7 +53,7 @@ def test_generate_short_answer_defaults_to_one(client: TestClient) -> None:
 def test_generate_rejects_unknown_question_type(client: TestClient) -> None:
     assert (
         client.post(
-            "/generate", json={"question_type": "essay", "skill_tag": "arithmetic"}
+            "/generate", json={"question_type": "essay", "topic": "arithmetic"}
         ).status_code
         == 422
     )
@@ -65,7 +65,7 @@ def test_generate_rejects_count_out_of_range(client: TestClient) -> None:
             "/generate",
             json={
                 "question_type": "multiple_choice",
-                "skill_tag": "arithmetic",
+                "topic": "arithmetic",
                 "count": 99,
             },
         ).status_code
@@ -74,14 +74,14 @@ def test_generate_rejects_count_out_of_range(client: TestClient) -> None:
 
 
 def test_list_filters(client: TestClient) -> None:
-    _generate(client, question_type="multiple_choice", skill_tag="arithmetic")
-    _generate(client, question_type="short_answer", skill_tag="algebra")
+    _generate(client, question_type="multiple_choice", topic="arithmetic")
+    _generate(client, question_type="short_answer", topic="algebra")
 
     assert (
         len(client.get("/questions", params={"question_type": "short_answer"}).json())
         == 1
     )
-    assert len(client.get("/questions", params={"skill_tag": "arithmetic"}).json()) == 1
+    assert len(client.get("/questions", params={"topic": "arithmetic"}).json()) == 1
 
 
 def test_list_pagination(client: TestClient) -> None:
@@ -163,8 +163,8 @@ def test_pass_rate_aggregates_by_prompt_version(client: TestClient) -> None:
     for question_id in ids:
         client.post(f"/questions/{question_id}/evaluate")
 
-    # Break one question's skill tag, then evaluate it again: 3 evaluations, 2 passing.
-    client.patch(f"/questions/{ids[0]}", json={"skill_tag": "not-a-real-tag"})
+    # Break one question's topic, then evaluate it again: 3 evaluations, 2 passing.
+    client.patch(f"/questions/{ids[0]}", json={"topic": "not-a-real-tag"})
     client.post(f"/questions/{ids[0]}/evaluate")
 
     rows = client.get("/stats/pass-rate").json()

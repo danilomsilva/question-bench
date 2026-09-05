@@ -13,7 +13,7 @@ The app helps a teacher or content author create test questions quickly,
 then checks their quality automatically instead of by eye.
 
 1. **Ask for questions.** The user picks a question type (multiple choice
-   or short answer) and a skill tag (e.g. "fractions"), and requests a
+   or short answer) and a topic (e.g. "fractions"), and requests a
    batch. The app asks an LLM (Gemini) to draft them.
    *`POST /generate` — request validated by Pydantic, questions drafted by
    Gemini (Google AI Studio API), stored as documents in MongoDB.*
@@ -57,7 +57,7 @@ PATCH /questions/{id}, POST /questions/{id}/evaluate
 - no duplicate options
 - distractors within ±30% length of correct answer
 - stem does not contain the answer verbatim
-- skill_tag present and in allowed list
+- topic present and in allowed list
 Scores stored against prompt_version so prompt changes show as pass-rate deltas.
 
 ## Out of scope

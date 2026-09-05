@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pydantic import BaseModel, Field
 from question_bench.models import MultipleChoiceQuestion, Question, ShortAnswerQuestion
-from question_bench.skill_tags import ALLOWED_SKILL_TAGS
+from question_bench.topics import ALLOWED_TOPICS
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,14 +85,14 @@ def stem_excludes_answer(
     return RuleResult(rule="stem_excludes_answer", passed=False, detail=detail)
 
 
-def skill_tag_allowed(
+def topic_allowed(
     question: MultipleChoiceQuestion | ShortAnswerQuestion,
 ) -> RuleResult:
-    """The question's ``skill_tag`` must be in the allowed vocabulary."""
-    if question.skill_tag in ALLOWED_SKILL_TAGS:
-        return RuleResult(rule="skill_tag_allowed", passed=True)
-    detail = f"{question.skill_tag!r} is not an allowed skill tag"
-    return RuleResult(rule="skill_tag_allowed", passed=False, detail=detail)
+    """The question's ``topic`` must be in the allowed vocabulary."""
+    if question.topic in ALLOWED_TOPICS:
+        return RuleResult(rule="topic_allowed", passed=True)
+    detail = f"{question.topic!r} is not an allowed topic"
+    return RuleResult(rule="topic_allowed", passed=False, detail=detail)
 
 
 class EvaluationReport(BaseModel):
@@ -133,14 +133,14 @@ def evaluate(question: Question) -> EvaluationReport:
             no_duplicate_options(question),
             distractor_length_within_30pct(question),
             stem_excludes_answer(question),
-            skill_tag_allowed(question),
+            topic_allowed(question),
         ]
     else:
         # Short answer: no options, and a single answer field, so only the
         # two type-agnostic rules apply.
         results = [
             stem_excludes_answer(question),
-            skill_tag_allowed(question),
+            topic_allowed(question),
         ]
 
     passed_count = sum(1 for r in results if r.passed)

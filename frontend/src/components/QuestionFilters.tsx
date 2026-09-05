@@ -1,4 +1,4 @@
-import { SKILL_TAGS, type QuestionType } from "../api";
+import { TOPICS, type QuestionType } from "../api";
 
 export function QuestionTypeSelect({
   value,
@@ -24,7 +24,7 @@ export function QuestionTypeSelect({
   );
 }
 
-export function SkillTagSelect({
+export function TopicSelect({
   value,
   onChange,
   allowAny = false,
@@ -41,10 +41,10 @@ export function SkillTagSelect({
       onChange={(e) => onChange(e.target.value)}
       className={className}
     >
-      {allowAny && <option value="">any skill</option>}
-      {SKILL_TAGS.map((tag) => (
-        <option key={tag} value={tag}>
-          {tag}
+      {allowAny && <option value="">any topic</option>}
+      {TOPICS.map((topic) => (
+        <option key={topic} value={topic}>
+          {topic}
         </option>
       ))}
     </select>

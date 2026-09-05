@@ -18,7 +18,7 @@ exercise the API, not the thing being demonstrated.
 ## How it works
 
 1. **Generate** — pick a type (`multiple_choice` / `short_answer`) and a
-   skill tag; the app asks Gemini (or a deterministic stub) to draft questions
+   topic; the app asks Gemini (or a deterministic stub) to draft questions
    and stores them.
 2. **Review / edit** — list and open questions, fix wording or answers.
 3. **Evaluate** — run the rule harness against a question: a pass/fail per
@@ -72,8 +72,8 @@ docker compose up -d mongo && uv run pytest   # run everything
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `POST` | `/generate` | Draft and store questions (`question_type`, `skill_tag`, `count` 1–10) |
-| `GET` | `/questions` | List, filter by `question_type` / `skill_tag`, `limit` / `offset` |
+| `POST` | `/generate` | Draft and store questions (`question_type`, `topic`, `count` 1–10) |
+| `GET` | `/questions` | List, filter by `question_type` / `topic`, `limit` / `offset` |
 | `GET` | `/questions/{id}` | One question |
 | `PATCH` | `/questions/{id}` | Partial update; re-validated; `id`/`type`/`created_at`/`prompt_version` are immutable |
 | `POST` | `/questions/{id}/evaluate` | Run the harness, store and return the report |
@@ -89,7 +89,7 @@ Deterministic checks, dispatched by question type:
 | no duplicate options | multiple choice |
 | each distractor's length within ±30% of the correct answer's | multiple choice |
 | the stem does not contain the answer verbatim | both |
-| `skill_tag` is in the allowed vocabulary | both |
+| `topic` is in the allowed vocabulary | both |
 
 `score` is the fraction of applicable rules that passed, so multiple
 choice (5 rules) and short answer (2) stay comparable on one 0–1 scale.

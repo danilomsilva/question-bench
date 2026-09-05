@@ -22,7 +22,7 @@ class QuestionBase(BaseModel):
 
     id: str = Field(default_factory=lambda: uuid.uuid4().hex)
     stem: str = Field(min_length=1)
-    skill_tag: str = Field(min_length=1)
+    topic: str = Field(min_length=1)
     prompt_version: str = Field(min_length=1)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

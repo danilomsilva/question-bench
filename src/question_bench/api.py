@@ -25,7 +25,7 @@ _PROTECTED_FIELDS = {"id", "type", "created_at", "prompt_version"}
 
 class GenerateRequest(BaseModel):
     question_type: Literal["multiple_choice", "short_answer"]
-    skill_tag: str = Field(min_length=1)
+    topic: str = Field(min_length=1)
     count: int = Field(default=1, ge=1, le=10)
 
 
@@ -86,7 +86,7 @@ async def generate(
     try:
         questions = generator.generate(
             question_type=request.question_type,
-            skill_tag=request.skill_tag,
+            topic=request.topic,
             count=request.count,
             prompt_version=settings.prompt_version,
         )
@@ -102,12 +102,12 @@ async def generate(
 async def list_questions(
     store: StoreDep,
     question_type: str | None = None,
-    skill_tag: str | None = None,
+    topic: str | None = None,
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> list[Question]:
     return await store.list_questions(
-        question_type=question_type, skill_tag=skill_tag, limit=limit, offset=offset
+        question_type=question_type, topic=topic, limit=limit, offset=offset
     )
 
 

@@ -20,12 +20,12 @@ def test_entries_to_questions_validates_and_stamps_provenance() -> None:
     questions = _entries_to_questions(
         [{"stem": "Pick one", "options": ["aa", "bb", "cc"], "correct_answer": "bb"}],
         question_type="multiple_choice",
-        skill_tag="arithmetic",
+        topic="arithmetic",
         prompt_version="gemini-test",
     )
 
     assert len(questions) == 1
-    assert questions[0].skill_tag == "arithmetic"
+    assert questions[0].topic == "arithmetic"
     assert questions[0].prompt_version == "gemini-test"
 
 
@@ -34,7 +34,7 @@ def test_entries_to_questions_rejects_missing_field() -> None:
         _entries_to_questions(
             [{"stem": "no options here"}],
             question_type="multiple_choice",
-            skill_tag="arithmetic",
+            topic="arithmetic",
             prompt_version="x",
         )
 
@@ -44,6 +44,6 @@ def test_entries_to_questions_rejects_extra_field() -> None:
         _entries_to_questions(
             [{"stem": "q", "answer": "a", "difficulty": "hard"}],
             question_type="short_answer",
-            skill_tag="arithmetic",
+            topic="arithmetic",
             prompt_version="x",
         )

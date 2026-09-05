@@ -16,7 +16,7 @@ from question_bench.settings import get_settings
 
 # Fields the app filters, groups or sorts on. `prompt_version` matters
 # most: pass-rate-by-prompt is the whole point of the eval scores.
-_QUESTION_INDEXES = ("type", "skill_tag", "prompt_version", "created_at")
+_QUESTION_INDEXES = ("type", "topic", "prompt_version", "created_at")
 _EVALUATION_INDEXES = ("question_id", "prompt_version", "evaluated_at")
 
 

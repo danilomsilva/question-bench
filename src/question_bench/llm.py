@@ -24,7 +24,7 @@ class GenerationError(RuntimeError):
 
 class QuestionGenerator(Protocol):
     def generate(
-        self, *, question_type: str, skill_tag: str, count: int, prompt_version: str
+        self, *, question_type: str, topic: str, count: int, prompt_version: str
     ) -> list[Question]: ...
 
 
@@ -32,13 +32,13 @@ class StubQuestionGenerator:
     """Deterministic fake generator. No LLM, no randomness."""
 
     def generate(
-        self, *, question_type: str, skill_tag: str, count: int, prompt_version: str
+        self, *, question_type: str, topic: str, count: int, prompt_version: str
     ) -> list[Question]:
         if question_type == "multiple_choice":
             return [
                 MultipleChoiceQuestion(
-                    stem=f"Sample multiple-choice question about {skill_tag} (#{i})",
-                    skill_tag=skill_tag,
+                    stem=f"Sample multiple-choice question about {topic} (#{i})",
+                    topic=topic,
                     prompt_version=prompt_version,
                     # All options length 5 so the distractor-length rule passes.
                     options=["alpha", "bravo", "delta", "gamma"],
@@ -48,8 +48,8 @@ class StubQuestionGenerator:
             ]
         return [
             ShortAnswerQuestion(
-                stem=f"Sample short-answer question about {skill_tag} (#{i})",
-                skill_tag=skill_tag,
+                stem=f"Sample short-answer question about {topic} (#{i})",
+                topic=topic,
                 prompt_version=prompt_version,
                 answer=f"response-{i}",
             )
@@ -66,10 +66,10 @@ _SCHEMA = {
 }
 
 
-def _build_prompt(question_type: str, skill_tag: str, count: int) -> str:
+def _build_prompt(question_type: str, topic: str, count: int) -> str:
     return (
-        f"Generate {count} {question_type} assessment question(s) testing the skill "
-        f'"{skill_tag}". Return ONLY a JSON array of {_SCHEMA[question_type]}. '
+        f"Generate {count} {question_type} assessment question(s) testing the topic "
+        f'"{topic}". Return ONLY a JSON array of {_SCHEMA[question_type]}. '
         "Do not put the answer verbatim in the stem. For multiple choice, "
         "keep the distractors close in length to the correct answer."
     )
@@ -79,7 +79,7 @@ def _entries_to_questions(
     entries: list[dict[str, Any]],
     *,
     question_type: str,
-    skill_tag: str,
+    topic: str,
     prompt_version: str,
 ) -> list[Question]:
     """Turn raw LLM objects into validated questions.
@@ -93,7 +93,7 @@ def _entries_to_questions(
         merged = {
             **entry,
             "type": question_type,
-            "skill_tag": skill_tag,
+            "topic": topic,
             "prompt_version": prompt_version,
         }
         try:
@@ -113,12 +113,12 @@ class GeminiQuestionGenerator:
         self._model = model
 
     def generate(
-        self, *, question_type: str, skill_tag: str, count: int, prompt_version: str
+        self, *, question_type: str, topic: str, count: int, prompt_version: str
     ) -> list[Question]:
         try:
             response = self._client.models.generate_content(
                 model=self._model,
-                contents=_build_prompt(question_type, skill_tag, count),
+                contents=_build_prompt(question_type, topic, count),
                 config={"response_mime_type": "application/json"},
             )
             entries = json.loads(response.text or "")
@@ -131,6 +131,6 @@ class GeminiQuestionGenerator:
         return _entries_to_questions(
             entries,
             question_type=question_type,
-            skill_tag=skill_tag,
+            topic=topic,
             prompt_version=prompt_version,
         )

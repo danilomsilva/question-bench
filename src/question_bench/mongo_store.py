@@ -46,15 +46,15 @@ class MongoQuestionStore:
         self,
         *,
         question_type: str | None = None,
-        skill_tag: str | None = None,
+        topic: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> list[Question]:
         query: dict[str, Any] = {}
         if question_type is not None:
             query["type"] = question_type
-        if skill_tag is not None:
-            query["skill_tag"] = skill_tag
+        if topic is not None:
+            query["topic"] = topic
         cursor = (
             self._questions.find(query).sort("created_at", 1).skip(offset).limit(limit)
         )
